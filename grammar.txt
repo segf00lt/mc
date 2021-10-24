@@ -1,5 +1,0 @@
-# grammar used by mexpr
-
-sentence -> statement
-            equation
-	    system
