@@ -9,21 +9,6 @@ i = 0
 def operation(e) -> int or float:
     global i
 
-    if e[i] == "~":
-        i += 1
-        try:
-            e[i]
-        except IndexError:
-            print(f"error: expected number or ( at index {i}", file=sys.stderr)
-            exit(1)
-
-        r = operation(e)
-        if isinstance(r, float):
-            print(f"error: attempted bitwise operation on float", file=sys.stderr)
-            exit(1)
-
-        return ~r
-
     r = expression(e)
 
     if (i < len(e)) and e[i].isalpha():
@@ -35,6 +20,7 @@ def operation(e) -> int or float:
             print(f"error: attempted bitwise operation on float", file=sys.stderr)
             exit(1)
 
+        # get unsigned int working
         b = bin(r)
         r = int(b[1 if b[0] == "-" else 0:], base=2)
 
@@ -102,7 +88,7 @@ def term(e) -> int or float:
     global i
     r = factor(e)
 
-    if (i < len(e)) and e[i].isalpha():
+    if (i > len(e)) and e[i].isalpha():
         print(f"error: expected operator at index {i}", file=sys.stderr)
         exit(1)
 
@@ -126,7 +112,6 @@ def factor(e) -> int or float:
 
     check = lambda: (i < len(e)) and (e[i].isdigit() or e[i] in ".")
 
-    count = 0
     if check():
         buf = ""
         while check():
@@ -151,9 +136,38 @@ def factor(e) -> int or float:
 
         return r
 
+    elif (i < len(e)) and (e[i] in "+-~"):
+        r = unary(e)
+        return r
+
     else:
         print(f"error: expected number or ( at index {i}", file=sys.stderr)
         exit(1)
+
+def unary(e) -> int or float:
+    global i
+
+    op = e[i]
+    i += 1
+
+    if i >= len(e):
+        print(f"error: expected number or ( at index {i}", file=sys.stderr)
+        exit(1)
+
+    if op == "+":
+        r = +factor(e)
+
+    elif op == "-":
+        r = -factor(e)
+
+    elif op == "~":
+        try:
+            r = ~factor(e)
+        except TypeError:
+            print(f"error: attempted bitwise operation on float", file=sys.stderr)
+            exit(1)
+
+    return r
 
 if __name__ == '__main__':
     e = sys.argv[1]

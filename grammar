@@ -9,7 +9,6 @@ system	   -> 	equation
 equation   -> 	operation = operation
 
 operation  ->	expression
-		~ operation
 		operation | expression
 		operation & expression
 		operation ^ expression
@@ -26,9 +25,10 @@ term	   ->	factor
 		term / factor
 
 factor	   ->	number
-		+ number
-		- number
 		variable
-		+ variable
-		- variable
 		( operation )
+		unary
+
+unary	   ->	+ factor
+		- factor
+		~ factor

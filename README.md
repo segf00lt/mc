@@ -3,7 +3,7 @@
 `mexpr` is a beefed up version of the gnu core utility `expr` specialized for math.
 When finished, it'll be able to:
 
-- Compute comparison statements, bitwise operations and numerical expressions
+- Compute bitwise operations and numerical expressions
 - Solve equations and systems of equations
 - Maybe do calculus
 
@@ -16,4 +16,5 @@ calculations `mexpr` can simplify algebraic expressions.
 
 - Learn about computer algebra
 - Test grammar spec
+- The stuff in the README
 - Write `mexpr`
