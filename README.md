@@ -14,5 +14,6 @@ calculations `mexpr` can simplify algebraic expressions.
 
 ## TODO
 
+- Learn about computer algebra
 - Test grammar spec
 - Write `mexpr`
