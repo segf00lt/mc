@@ -23,12 +23,23 @@ term	   ->	factor
 		term * factor
 		term ** factor
 		term / factor
+		term % factor
 
 factor	   ->	number
 		variable
 		( operation )
 		unary
+		function
 
 unary	   ->	+ factor
 		- factor
 		~ factor
+		! factor
+
+function   ->	sin ( operation )
+		cos ( operation )
+		tan ( operation )
+		log ( operation )
+		ln ( operation )
+		log2 ( operation )
+		logn ( operation , factor )

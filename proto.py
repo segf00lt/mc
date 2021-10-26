@@ -6,13 +6,24 @@ import math as m
 # position in expression
 i = 0
 
+def parse(e) -> int or float:
+    global i
+    e = e.replace(" ", "")
+    r = operation(e)
+
+    if (i < len(e)) and (e[i] == ")"):
+        print(f"error: mismatched parenthesis", file=sys.stderr)
+        exit(1)
+
+    return r
+
 def operation(e) -> int or float:
     global i
 
     r = expression(e)
 
     if (i < len(e)) and e[i].isalpha():
-        print(f"error: expected operator at index {i}", file=sys.stderr)
+        print(f"error: unexpected syntax", file=sys.stderr)
         exit(1)
 
     while (i < len(e)) and (e[i] in "|&^><"):
@@ -38,29 +49,19 @@ def operation(e) -> int or float:
 
         elif e[i] == ">":
             i += 1
-            try:
-                if e[i] == ">":
-                    i += 1
-                    r >>= expression(e)
-                else:
-                    print(f"error: incomplete bitwise shift at index {i}", file=sys.stderr)
-                    exit(1)
-            except IndexError:
-                print(f"error: incomplete bitwise shift at index {i}", file=sys.stderr)
+            if i >= len(e) or e[i] != ">":
+                print(f"error: incomplete bitwise shift", file=sys.stderr)
                 exit(1)
+            i += 1
+            r >>= expression(e)
 
         elif e[i] == "<":
             i += 1
-            try:
-                if e[i] == "<":
-                    i += 1
-                    r <<= expression(e)
-                else:
-                    print(f"error: incomplete bitwise shift at index {i}", file=sys.stderr)
-                    exit(1)
-            except IndexError:
-                print(f"error: incomplete bitwise shift at index {i}", file=sys.stderr)
+            if i >= len(e) or e[i] != "<":
+                print(f"error: incomplete bitwise shift", file=sys.stderr)
                 exit(1)
+            i += 1
+            r <<= expression(e)
 
     return r
 
@@ -69,7 +70,7 @@ def expression(e) -> int or float:
     r = term(e)
 
     if (i < len(e)) and e[i].isalpha():
-        print(f"error: expected operator at index {i}", file=sys.stderr)
+        print(f"error: unexpected syntax", file=sys.stderr)
         exit(1)
 
     while (i < len(e)) and (e[i] in "+-"):
@@ -89,10 +90,10 @@ def term(e) -> int or float:
     r = factor(e)
 
     if (i > len(e)) and e[i].isalpha():
-        print(f"error: expected operator at index {i}", file=sys.stderr)
+        print(f"error: unexpected syntax", file=sys.stderr)
         exit(1)
 
-    while (i < len(e)) and (e[i] in "*/"):
+    while (i < len(e)) and (e[i] in "*/%"):
         if e[i] == "*":
             i += 1
             if e[i] == "*":
@@ -104,6 +105,10 @@ def term(e) -> int or float:
         elif e[i] == "/":
             i += 1
             r /= factor(e)
+
+        elif e[i] == "%":
+            i += 1
+            r %= factor(e)
 
     return r
 
@@ -128,20 +133,20 @@ def factor(e) -> int or float:
 
     elif (i < len(e)) and (e[i] == "("):
         i += 1
-        r = expression(e)
-        if e[i] != ")":
-            print(f"error: missing ) at index {i}", file=sys.stderr)
+        r = operation(e)
+        if (i >= len(e)) or (e[i] != ")"):
+            print(f"error: mismatched parenthesis", file=sys.stderr)
             exit(1)
         i += 1
 
         return r
 
-    elif (i < len(e)) and (e[i] in "+-~"):
+    elif (i < len(e)) and (e[i] in "+-~!"):
         r = unary(e)
         return r
 
     else:
-        print(f"error: expected number or ( at index {i}", file=sys.stderr)
+        print(f"error: unexpected syntax", file=sys.stderr)
         exit(1)
 
 def unary(e) -> int or float:
@@ -161,16 +166,21 @@ def unary(e) -> int or float:
         r = -factor(e)
 
     elif op == "~":
-        try:
-            r = ~factor(e)
-        except TypeError:
+        r = factor(e)
+        if isinstance(r, float):
             print(f"error: attempted bitwise operation on float", file=sys.stderr)
             exit(1)
+        r = ~r
+
+    elif op == "!":
+        r = factor(e)
+        if isinstance(r, float):
+            print(f"error: attempted factorial on non integer", file=sys.stderr)
+            exit(1)
+        r = m.factorial(r)
 
     return r
 
 if __name__ == '__main__':
-    e = sys.argv[1]
-    e = e.replace(" ", "")
-    r = operation(e)
+    r = parse(sys.argv[1])
     print(f"result = {r}")
