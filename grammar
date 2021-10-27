@@ -1,12 +1,16 @@
 # The mc grammar spec
 
+# Note on the relational operators:
+# These operators are chained non-accumulatively,
+# meaning 2 > 1 > 0 is evaluated as 2 > 1 AND 1 > 0.
+
 sentence  ->	operation
-		operation > operation
-		operation < operation
-		operation == operation
-		operation != operation
-		operation >= operation
-		operation <= operation
+		sentence > operation
+		sentence < operation
+		sentence == operation
+		sentence != operation
+		sentence >= operation
+		sentence <= operation
 
 operation  ->	expression
 		operation | expression
@@ -24,21 +28,31 @@ term	   ->	factor
 		term ** factor
 		term / factor
 		term % factor
+		term !
 
 factor	   ->	number
-		( operation )
+		paren
 		unary
 		function
+		constant
+
+paren      ->	( operation )
 
 unary	   ->	+ factor
 		- factor
 		~ factor
-		! factor
 
-function   ->	sin ( operation )
-		cos ( operation )
-		tan ( operation )
-		log ( operation )
-		ln ( operation )
-		log2 ( operation )
-		logn ( operation , factor )
+constant   ->	pi
+		e
+
+function   ->	sin paren
+		cos paren
+		tan paren
+		asin paren
+		acos paren
+		atan paren
+		root number paren
+		ln paren
+		abs paren
+		log paren
+		log number paren

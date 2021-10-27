@@ -4,7 +4,7 @@
 When finished, it'll be able to do relational operations and arithmetic with integers
 or floating point numbers, and perform bitwise operations.
 
-## Possible features in the future
+## Potential features
 
 - Do algebra (simplify expressions, solve equations and systems of equations)
 - Maybe do calculus
@@ -12,7 +12,6 @@ or floating point numbers, and perform bitwise operations.
 
 ## TODO
 
-- Add functions
-- Find way to parse relational operators
+- Cleanup `proto.py`
 - Write `mc`
 - Learn about computer algebra
