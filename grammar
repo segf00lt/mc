@@ -1,12 +1,12 @@
-# The mexpr grammar spec
+# The mc grammar spec
 
-sentence   ->  	{ system }
-		operation
-
-system	   -> 	equation
-	     	system ; equation
-
-equation   -> 	operation = operation
+sentence  ->	operation
+		operation > operation
+		operation < operation
+		operation == operation
+		operation != operation
+		operation >= operation
+		operation <= operation
 
 operation  ->	expression
 		operation | expression
@@ -26,7 +26,6 @@ term	   ->	factor
 		term % factor
 
 factor	   ->	number
-		variable
 		( operation )
 		unary
 		function

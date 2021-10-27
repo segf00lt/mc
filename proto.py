@@ -23,7 +23,7 @@ def operation(e) -> int or float:
     r = expression(e)
 
     if (i < len(e)) and e[i].isalpha():
-        print(f"error: unexpected syntax", file=sys.stderr)
+        print(f"error: invalid syntax", file=sys.stderr)
         exit(1)
 
     while (i < len(e)) and (e[i] in "|&^><"):
@@ -63,6 +63,10 @@ def operation(e) -> int or float:
             i += 1
             r <<= expression(e)
 
+    if (i < len(e)) and (e[i] == "("):
+        print(f"error: invalid syntax", file=sys.stderr)
+        exit(1)
+
     return r
 
 def expression(e) -> int or float:
@@ -70,7 +74,7 @@ def expression(e) -> int or float:
     r = term(e)
 
     if (i < len(e)) and e[i].isalpha():
-        print(f"error: unexpected syntax", file=sys.stderr)
+        print(f"error: invalid syntax", file=sys.stderr)
         exit(1)
 
     while (i < len(e)) and (e[i] in "+-"):
@@ -90,7 +94,7 @@ def term(e) -> int or float:
     r = factor(e)
 
     if (i > len(e)) and e[i].isalpha():
-        print(f"error: unexpected syntax", file=sys.stderr)
+        print(f"error: invalid syntax", file=sys.stderr)
         exit(1)
 
     while (i < len(e)) and (e[i] in "*/%"):
@@ -104,7 +108,11 @@ def term(e) -> int or float:
 
         elif e[i] == "/":
             i += 1
-            r /= factor(e)
+            try:
+                r /= factor(e)
+            except ZeroDivisionError:
+                print(f"error: divided by zero", file=sys.stderr)
+                exit(1)
 
         elif e[i] == "%":
             i += 1
@@ -126,7 +134,7 @@ def factor(e) -> int or float:
         try:
             r = float(buf)
         except ValueError:
-            print(f"error: unexpected syntax", file=sys.stderr)
+            print(f"error: invalid syntax", file=sys.stderr)
             exit(1)
 
         return int(r) if r.is_integer() else float(r)
@@ -146,7 +154,7 @@ def factor(e) -> int or float:
         return r
 
     else:
-        print(f"error: unexpected syntax", file=sys.stderr)
+        print(f"error: invalid syntax", file=sys.stderr)
         exit(1)
 
 def unary(e) -> int or float:
@@ -174,8 +182,8 @@ def unary(e) -> int or float:
 
     elif op == "!":
         r = factor(e)
-        if isinstance(r, float):
-            print(f"error: attempted factorial on non integer", file=sys.stderr)
+        if isinstance(r, float) or (r < 0):
+            print(f"error: attempted factorial on non positive integer", file=sys.stderr)
             exit(1)
         r = m.factorial(r)
 
