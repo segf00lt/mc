@@ -4,20 +4,20 @@
 # These operators are chained non-accumulatively,
 # meaning 2 > 1 > 0 is evaluated as 2 > 1 AND 1 > 0.
 
-sentence    ->	concat
-		relational
+sentence    ->	relational
+		sentence || relational
+		sentence && relational
 
-concat	    ->	relational
-		concat || relational
-		concat && relational
+relational  ->	calculate
+		relational > calculate
+		relational < calculate
+		relational == calculate
+		relational != calculate
+		relational >= calculate
+		relational <= calculate
 
-relational  ->	operation
-		relational > operation
-		relational < operation
-		relational == operation
-		relational != operation
-		relational >= operation
-		relational <= operation
+calculate  ->	operation
+		expression
 
 operation  ->	expression
 		operation | expression
