@@ -4,13 +4,20 @@
 # These operators are chained non-accumulatively,
 # meaning 2 > 1 > 0 is evaluated as 2 > 1 AND 1 > 0.
 
-sentence  ->	operation
-		sentence > operation
-		sentence < operation
-		sentence == operation
-		sentence != operation
-		sentence >= operation
-		sentence <= operation
+sentence    ->	concat
+		relational
+
+concat	    ->	relational
+		concat || relational
+		concat && relational
+
+relational  ->	operation
+		relational > operation
+		relational < operation
+		relational == operation
+		relational != operation
+		relational >= operation
+		relational <= operation
 
 operation  ->	expression
 		operation | expression
@@ -36,7 +43,7 @@ factor	   ->	number
 		function
 		constant
 
-paren      ->	( operation )
+paren      ->	( sentence )
 
 unary	   ->	+ factor
 		- factor

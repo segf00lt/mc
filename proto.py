@@ -29,6 +29,23 @@ class COMPARE(Enum):
 
 def sentence(e) -> int or float:
     global i
+    r = relational(e)
+
+    while i < len(e) and e[i] in "&|":
+        if e[i:].find("&&") == 0:
+            i += 2
+            r = int(r and relational(e))
+        elif e[i:].find("||") == 0:
+            i += 2
+            r = int(r or relational(e))
+        else:
+            print(f"error: invalid syntax", file=sys.stderr)
+            exit(1)
+
+    return r
+
+def relational(e) -> int or float:
+    global i
     r = operation(e)
     v = []
     c = []
@@ -92,20 +109,20 @@ def sentence(e) -> int or float:
         v.append(r)
         r = 1
 
-    for i in range(len(c)):
+    for n in range(len(c)):
         op = 0
-        if c[i] == COMPARE.GT:
-            op = int(v[i] > v[i + 1])
-        elif c[i] == COMPARE.GEQ:
-            op = int(v[i] >= v[i + 1])
-        elif c[i] == COMPARE.LT:
-            op = int(v[i] < v[i + 1])
-        elif c[i] == COMPARE.LEQ:
-            op = int(v[i] <= v[i + 1])
-        elif c[i] == COMPARE.EQ:
-            op = int(v[i] == v[i + 1])
-        elif c[i] == COMPARE.NEQ:
-            op = int(v[i] != v[i + 1])
+        if c[n] == COMPARE.GT:
+            op = int(v[n] > v[n + 1])
+        elif c[n] == COMPARE.GEQ:
+            op = int(v[n] >= v[n + 1])
+        elif c[n] == COMPARE.LT:
+            op = int(v[n] < v[n + 1])
+        elif c[n] == COMPARE.LEQ:
+            op = int(v[n] <= v[n + 1])
+        elif c[n] == COMPARE.EQ:
+            op = int(v[n] == v[n + 1])
+        elif c[n] == COMPARE.NEQ:
+            op = int(v[n] != v[n + 1])
         r &= op
 
     return r
@@ -120,6 +137,9 @@ def operation(e) -> int or float:
 
         if e[i] == "|":
             i += 1
+            if i < len(e) and e[i] == "|":
+                i -= 1
+                return r
             if isinstance(r, float):
                 print(f"error: attempted bitwise operation on float", file=sys.stderr)
                 exit(1)
@@ -127,6 +147,9 @@ def operation(e) -> int or float:
 
         elif e[i] == "&":
             i += 1
+            if i < len(e) and e[i] == "&":
+                i -= 1
+                return r
             if isinstance(r, float):
                 print(f"error: attempted bitwise operation on float", file=sys.stderr)
                 exit(1)
@@ -210,6 +233,8 @@ def term(e) -> int or float:
             if isinstance(r, float) or r < 0:
                 print(f"error: attempted factorial on non positive integer", file=sys.stderr)
                 exit(1)
+            if i + 1 < len(e) and e[i + 1] == "=":
+                return r
             r = m.factorial(r)
             i += 1
 
@@ -270,7 +295,7 @@ def paren(e) -> int or float:
 
     if i < len(e) and e[i] == "(":
         i += 1
-        r = operation(e)
+        r = sentence(e)
         if i >= len(e) or e[i] != ")":
             print(f"error: mismatched parenthesis", file=sys.stderr)
             exit(1)

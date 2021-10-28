@@ -12,6 +12,6 @@ or floating point numbers, and perform bitwise operations.
 
 ## TODO
 
-- Cleanup `proto.py`
+- Restrict access of bitwise operators to an integer only mode
 - Write `mc`
 - Learn about computer algebra
