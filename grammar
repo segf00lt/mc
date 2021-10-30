@@ -5,65 +5,65 @@
 # meaning 2 > 1 > 0 is evaluated as 2 > 1 AND 1 > 0.
 
 <sentence>   ::= <relational>
-		 <sentence> || <relational>
-                 <sentence> && <relational>
+		 | <sentence> "||" <relational>
+                 | <sentence> "&&" <relational>
 
 <relational> ::= <calculate>
-                 <relational> > <calculate>
-                 <relational> < <calculate>
-                 <relational> == <calculate>
-                 <relational> != <calculate>
-                 <relational> >= <calculate>
-                 <relational> <= <calculate>
+                 | <relational> ">" <calculate>
+                 | <relational> "<" <calculate>
+                 | <relational> "==" <calculate>
+                 | <relational> "!=" <calculate>
+                 | <relational> ">=" <calculate>
+                 | <relational> "<=" <calculate>
 
-<calculate>  ::= <operation>
-		 <expression>
+<calculate>  ::= <operation> | <expression>
 
 <operation>  ::= <expression>
-		 <operation> | <expression>
-		 <operation> & <expression>
-		 <operation> ^ <expression>
-		 <operation> >> <expression>
-		 <operation> << <expression>
+		 | <operation> "|" <expression>
+		 | <operation> "&" <expression>
+		 | <operation> "^" <expression>
+		 | <operation> ">>" <expression>
+		 | <operation> "<<" <expression>
 
 <expression> ::= <term>
-		 <expression> + <term>
-		 <expression> - <term>
+		 | <expression> "+" <term>
+		 | <expression> "-" <term>
 
 <term>	     ::= <factor>
-		 <term> * <factor>
-		 <term> ** <factor>
-		 <term> / <factor>
-		 <term> % <factor>
-		 <term> !
+		 | <term> "*" <factor>
+		 | <term> "**" <factor>
+		 | <term> "/" <factor>
+		 | <term> "%" <factor>
+		 | <term> "!"
 
 <factor>     ::= <number>
-		 <paren>
-		 <unary>
-		 <function>
-		 <constant>
+		 | <paren>
+		 | <unary>
+		 | <function>
+		 | <constant>
 
-<number>     ::= <number> <digit>
+<number>     ::= <digit>
+		 | <number> "." <number>
+		 | <number> <digit>
 
-<digit>      ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+<digit>      ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
 
-<paren>      ::= ( <sentence> )
+<paren>      ::= "(" <sentence> ")"
 
-<unary>	     ::= + <factor>
-		 - <factor>
-		 ~ <factor>
+<unary>	     ::= "+" <factor>
+		 | "-" <factor>
+		 | "~" <factor>
 
-<constant>   ::= pi
-		 e
+<constant>   ::= "pi" | "e"
 
-<function>   ::= sin <paren>
-		 cos <paren>
-		 tan <paren>
-		 asin <paren>
-		 acos <paren>
-		 atan <paren>
-		 root <number> <paren>
-		 ln <paren>
-		 abs <paren>
-		 log <paren>
-		 log <number> <paren>
+<function>   ::= "sin" <paren>
+		 | "cos" <paren>
+		 | "tan" <paren>
+		 | "asin" <paren>
+		 | "acos" <paren>
+		 | "atan" <paren>
+		 | "root" <factor> <paren>
+		 | "ln" <paren>
+		 | "abs" <paren>
+		 | "log" <paren>
+		 | "log" <factor> <paren>
