@@ -4,66 +4,64 @@
 # These operators are chained non-accumulatively,
 # meaning 2 > 1 > 0 is evaluated as 2 > 1 AND 1 > 0.
 
-<sentence>   ::= <relational>
-		 | <sentence> "||" <relational>
-                 | <sentence> "&&" <relational>
+<sentence> ::= <equality>
+	| <sentence> "||" <equality>
+	| <sentence> "&&" <equality>
+
+<equality> ::= <relational>
+	| <equality> "==" <relational>
+	| <equality> "!=" <relational>
 
 <relational> ::= <calculate>
-                 | <relational> ">" <calculate>
-                 | <relational> "<" <calculate>
-                 | <relational> "==" <calculate>
-                 | <relational> "!=" <calculate>
-                 | <relational> ">=" <calculate>
-                 | <relational> "<=" <calculate>
+	| <relational> ">" <calculate>
+	| <relational> "<" <calculate>
+	| <relational> ">=" <calculate>
+	| <relational> "<=" <calculate>
 
-<calculate>  ::= <operation> | <expression>
+<calculate> ::= <operation> | <expression>
 
-<operation>  ::= <expression>
-		 | <operation> "|" <expression>
-		 | <operation> "&" <expression>
-		 | <operation> "^" <expression>
-		 | <operation> ">>" <expression>
-		 | <operation> "<<" <expression>
+<shift> ::= <bitwise>
+	| <shift> ">>" <bitwise>
+	| <shift> "<<" <bitwise>
 
-<expression> ::= <term>
-		 | <expression> "+" <term>
-		 | <expression> "-" <term>
+<bitwise> ::= <additive>
+	| <bitwise> "|" <additive>
+	| <bitwise> "&" <additive>
+	| <bitwise> "^" <additive>
 
-<term>	     ::= <factor>
-		 | <term> "*" <factor>
-		 | <term> "**" <factor>
-		 | <term> "/" <factor>
-		 | <term> "%" <factor>
-		 | <term> "!"
+<additive> ::= <multiplicative>
+	| <additive> "+" <multiplicative>
+	| <additive> "-" <multiplicative>
 
-<factor>     ::= <number>
-		 | <paren>
-		 | <unary>
-		 | <function>
-		 | <constant>
+<multiplicative> ::= <primary>
+	| <multiplicative> "*" <primary>
+	| <multiplicative> "**" <primary>
+	| <multiplicative> "/" <primary>
+	| <multiplicative> "%" <primary>
+	| <multiplicative> "!"
 
-<number>     ::= <digit>
-		 | <number> "." <number>
-		 | <number> <digit>
+<primary> ::= <number>
+	| <paren>
+	| <unary>
+	| <function>
+	| <constant>
 
-<digit>      ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+<paren> ::= "(" <sentence> ")"
 
-<paren>      ::= "(" <sentence> ")"
+<unary>	::= "+" <primary>
+	| "-" <primary>
+	| "~" <primary>
 
-<unary>	     ::= "+" <factor>
-		 | "-" <factor>
-		 | "~" <factor>
+<constant> ::= "pi" | "e"
 
-<constant>   ::= "pi" | "e"
-
-<function>   ::= "sin" <paren>
-		 | "cos" <paren>
-		 | "tan" <paren>
-		 | "asin" <paren>
-		 | "acos" <paren>
-		 | "atan" <paren>
-		 | "root" <factor> <paren>
-		 | "ln" <paren>
-		 | "abs" <paren>
-		 | "log" <paren>
-		 | "log" <factor> <paren>
+<function> ::= "sin" <paren>
+	| "cos" <paren>
+	| "tan" <paren>
+	| "asin" <paren>
+	| "acos" <paren>
+	| "atan" <paren>
+	| "root" <primary> <paren>
+	| "ln" <paren>
+	| "abs" <paren>
+	| "log" <paren>
+	| "log" <primary> <paren>
