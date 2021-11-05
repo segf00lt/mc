@@ -2,6 +2,8 @@
 #include "y.tab.h"
 #include <stdlib.h>
 #include <math.h>
+#define YY_NO_INPUT
+#define YY_NO_UNPUT
 extern char domain;
 %}
 
@@ -25,7 +27,17 @@ extern char domain;
 			break;
 	}
 }
-^[rzn]\: { domain = yytext[0]; return DOMAIN; }
+^[rzn]\: {
+	domain = yytext[0];
+	switch(domain) {
+		case 'r':
+			return R_DOMAIN;
+		case 'z':
+			return Z_DOMAIN;
+		case 'n':
+			return N_DOMAIN;
+	}
+}
 \& { return AND; }
 \| { return OR; }
 \^ { return XOR; }

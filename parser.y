@@ -16,7 +16,9 @@ void yyerror(char* s);
 
 %start start
 %token UNDEFINED
-%token DOMAIN
+%token R_DOMAIN
+%token Z_DOMAIN
+%token N_DOMAIN
 %token END
 %token <r> REAL
 %token <z> WHOLE
@@ -41,9 +43,9 @@ void yyerror(char* s);
 %type <n> n_expr n_primary n_function n_paren
 
 %%
-start: DOMAIN r_expr END { printf("%f\n", $2); }
-     | DOMAIN z_expr END { printf("%d\n", $2); }
-     | DOMAIN n_expr END { printf("%u\n", $2); }
+start: R_DOMAIN r_expr END { printf("%.*f\n", ndecimals($2), $2); }
+     | Z_DOMAIN z_expr END { printf("%ld\n", $2); }
+     | N_DOMAIN n_expr END { printf("%lu\n", $2); }
      ;
 r_expr: r_primary { $$ = $1; }
       | r_function { $$ = $1; }
@@ -59,6 +61,10 @@ r_primary: REAL { $$ = $1; }
 	 | SUB REAL { $$ = -$2; }
          | PI { $$ = $1; }
          | E { $$ = $1; }
+	 | ADD PI { $$ = $2; }
+	 | SUB PI { $$ = -$2; }
+	 | ADD E { $$ = $2; }
+	 | SUB E { $$ = -$2; }
 	 | r_paren { $$ = $1; }
 	 ;
 r_function: SIN r_paren { $$ = sin($2); }
@@ -104,7 +110,7 @@ n_expr: n_primary { $$ = $1; }
       | n_expr LSHIFT n_expr { $$ = $1 << $3; }
       | n_expr RSHIFT n_expr { $$ = $1 >> $3; }
       | n_expr ADD n_expr { $$ = $1 + $3; }
-      | n_expr SUB n_expr { $$ = $1 - $3; }
+      | n_expr SUB n_expr { $$ = ($1 - $3) ? ((long)($1 - $3) > 0) : 0; }
       | n_expr MUL n_expr { $$ = $1 * $3; }
       | n_expr DIV n_expr { $$ = $1 / $3; }
       | n_expr MOD n_expr { $$ = $1 % $3; }
