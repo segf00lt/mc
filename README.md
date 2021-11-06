@@ -1,8 +1,9 @@
 # mc
 
-`mc` is a command line filter inspired by the Unix tools `expr` and `bc`.
-When finished, it'll be able to do relational, bitwise and arithmetic operations
-on real, whole and natural numbers (bitwise are restricted to naturals, see `parser.y`).
+`mc` is a command line tool inspired by the Unix tools `expr` and `bc`. When
+finished, it'll be able to do relational, bitwise and arithmetic operations on
+real, whole and natural numbers (some operations are restricted to certain
+domains, see `parser.y`).
 
 ## Potential features
 
@@ -12,5 +13,6 @@ on real, whole and natural numbers (bitwise are restricted to naturals, see `par
 
 ## TODO
 
+- Add accumulate register
 - Add relational operations to `mc`
 - Learn about computer algebra

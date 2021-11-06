@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -pedantic -Wall
 LIBS = -l fl -l m
-SRC = y.tab.c mc.c
+SRC = y.tab.c helper.c mc.c
 PARSEGEN = yacc -d
 LEXGEN = lex
 
