@@ -5,18 +5,28 @@
 #include "helper.h"
 
 extern char* progname;
+extern char domain;
+extern union Num acc;
+extern struct Flags flags;
+
+union Num regs[26];
+
 int yylex(void);
 void yyerror(char* s);
+
+void output(double r, long z, unsigned long n);
 %}
 
 %union {
 	double r;
 	long z;
 	unsigned long n;
+	int reg;
 }
 
 %start start
 %token UNDEFINED
+%token <reg> VAR
 %token R_DOMAIN
 %token Z_DOMAIN
 %token N_DOMAIN
@@ -25,9 +35,11 @@ void yyerror(char* s);
 %token <z> WHOLE
 %token <n> NATURAL
 %token <r> PI E
+%token ASSIGN
 %token AND OR NOT XOR LSHIFT RSHIFT
 %token ADD SUB MUL DIV MOD POW FACT OPAREN CPAREN
 %token SIN COS TAN ASIN ACOS ATAN ROOT LN ABS LOG
+%left ASSIGN
 %left OR
 %left XOR
 %left AND
@@ -44,9 +56,12 @@ void yyerror(char* s);
 %type <n> n_expr n_primary n_function n_paren
 
 %%
-start: R_DOMAIN r_expr END { printf("%.*f\n", ndecimals($2), $2); }
-     | Z_DOMAIN z_expr END { printf("%ld\n", $2); }
-     | N_DOMAIN n_expr END { printf("%lu\n", $2); }
+start: R_DOMAIN r_expr END { output($2, 0, 0); }
+     | Z_DOMAIN z_expr END { output(0, $2, 0); }
+     | N_DOMAIN n_expr END { output(0, 0, $2); }
+     | R_DOMAIN VAR ASSIGN r_expr END { regs[$2].r = $4; output($4, 0, 0); }
+     | Z_DOMAIN VAR ASSIGN z_expr END { regs[$2].z = $4; output(0, $4, 0); }
+     | N_DOMAIN VAR ASSIGN n_expr END { regs[$2].n = $4; output(0, 0, $4); }
      ;
 r_expr: r_primary { $$ = $1; }
       | r_function { $$ = $1; }
@@ -60,6 +75,9 @@ r_expr: r_primary { $$ = $1; }
 r_primary: REAL { $$ = $1; }
 	 | ADD REAL { $$ = $2; }
 	 | SUB REAL { $$ = -$2; }
+	 | VAR { $$ = regs[$1].r; }
+	 | ADD VAR { $$ = regs[$2].r; }
+	 | SUB VAR { $$ = -regs[$2].r; }
          | PI { $$ = $1; }
          | E { $$ = $1; }
 	 | ADD PI { $$ = $2; }
@@ -92,6 +110,9 @@ z_expr: z_primary { $$ = $1; }
       | z_expr POW z_expr { $$ = (long)powl($1, $3); }
       ;
 z_primary: WHOLE { $$ = $1; }
+	 | VAR { $$ = regs[$1].z; }
+	 | ADD VAR { $$ = regs[$2].z; }
+	 | SUB VAR { $$ = -regs[$2].z; }
 	 | ADD WHOLE { $$ = $2; }
 	 | SUB WHOLE { $$ = -$2; }
 	 | z_paren { $$ = $1; }
@@ -119,6 +140,7 @@ n_expr: n_primary { $$ = $1; }
       | n_expr FACT { $$ = factorial($1); }
       ;
 n_primary: NATURAL { $$ = $1; }
+	 | VAR { $$ = regs[$1].z; }
 	 | NOT n_primary { $$ = $2; }
 	 | n_paren { $$ = $1; }
 	 ;
@@ -129,6 +151,26 @@ n_function: ROOT n_paren { $$ = (unsigned long)sqrtl($2); }
 n_paren: OPAREN n_expr CPAREN { $$ = $2; }
        ;
 %%
+
+void output(double r, long z, unsigned long n) {
+	switch(domain) {
+		case 'r':
+			acc.r = (flags.accumulate ? acc.r : 0) + r;
+			if(!flags.last)
+				printf("%.*f\n", ndecimals(acc.r), acc.r);
+			return;
+		case 'z':
+			acc.z = (flags.accumulate ? acc.z : 0) + z;
+			if(!flags.last)
+				printf("%ld\n", acc.z);
+			return;
+		case 'n':
+			acc.n = (flags.accumulate ? acc.n : 0) + n;
+			if(!flags.last)
+				printf("%lu\n", acc.n);
+			return;
+	}
+}
 
 void yyerror(char* s) {
 	fprintf(stderr, "%s: %s\n", progname, s);

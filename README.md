@@ -13,6 +13,6 @@ domains, see `parser.y`).
 
 ## TODO
 
-- Add accumulate register
+- Write a `print()` function
 - Add relational operations to `mc`
 - Learn about computer algebra

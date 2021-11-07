@@ -9,11 +9,7 @@
 #define USAGE "Usage: mc [-nph] [-d[rzn]] [-e EXPRESSION] EXPRESSION ..."
 
 char* progname = NULL;
-struct Flags {
-	unsigned int printexpr : 1;
-	unsigned int linenumber : 1;
-	unsigned int domainset : 1;
-};
+
 struct Flags flags;
 
 char* handle[32];
@@ -30,6 +26,8 @@ int buf_pos = 0;
 
 char domain = 'r';
 char defaultdomain = 'r';
+
+union Num acc;
 
 void cleanup(void) {
 	for(int i = 0; i < file_pos; ++i)
@@ -91,6 +89,20 @@ void fileinput(void) {
 			buf_pos = 0;
 			++lnum;
 		}
+
+		if(flags.last) {
+			switch(domain) {
+				case 'r':
+					printf("%.*f\n", ndecimals(acc.r), acc.r);
+					return;
+				case 'z':
+					printf("%ld\n", acc.z);
+					return;
+				case 'n':
+					printf("%lu\n", acc.n);
+					return;
+			}
+		}
 	}
 }
 
@@ -130,13 +142,28 @@ void strinput(void) {
 		domain = defaultdomain;
 		buf_pos = 0;
 	}
+
+	if(flags.last) {
+		switch(domain) {
+			case 'r':
+				printf("%.*f\n", ndecimals(acc.r), acc.r);
+				return;
+			case 'z':
+				printf("%ld\n", acc.z);
+				return;
+			case 'n':
+				printf("%lu\n", acc.n);
+				return;
+		}
+	}
 }
 
 int main(int argc, char* argv[]) {
 	progname = argv[0];
+	memset(&acc, 0, sizeof(union Num));
 
 	int c;
-	while((c = getopt(argc, argv, "e:d:f:nph")) != -1) {
+	while((c = getopt(argc, argv, "e:d:f:nphal")) != -1) {
 		switch(c) {
 			case 'h':
 				fprintf(stderr, "%s\n", USAGE);
@@ -170,6 +197,13 @@ int main(int argc, char* argv[]) {
 				}
 				handle[handle_pos++] = optarg;
 				file[file_pos++] = fopen(optarg, "r");
+				break;
+			case 'a':
+				flags.last = 1;
+				flags.accumulate = 1;
+				break;
+			case 'l':
+				flags.last = 1;
 				break;
 			case 'p':
 				flags.printexpr = 1;

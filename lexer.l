@@ -1,10 +1,12 @@
 %{
-#include "y.tab.h"
 #include <stdlib.h>
 #include <math.h>
+#include "y.tab.h"
+#include "helper.h"
 #define YY_NO_INPUT
 #define YY_NO_UNPUT
 extern char domain;
+extern union Num acc;
 %}
 
 %%
@@ -38,6 +40,9 @@ extern char domain;
 			return N_DOMAIN;
 	}
 }
+pi { yylval.r = M_PI; return PI; }
+euler { yylval.r = M_E; return E; }
+[a-z] { yylval.reg = yytext[0] - 'a'; return VAR; }
 \& { return AND; }
 \| { return OR; }
 \^ { return XOR; }
@@ -52,8 +57,7 @@ extern char domain;
 \! { return FACT; }
 \( { return OPAREN; }
 \) { return CPAREN; }
-pi { yylval.r = M_PI; return PI; }
-e { yylval.r = M_E; return E; }
+\= { return ASSIGN; }
 sin { return SIN; }
 cos { return COS; }
 tan { return TAN; }
