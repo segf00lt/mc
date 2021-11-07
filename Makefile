@@ -1,9 +1,9 @@
 CC = gcc
 CFLAGS = -pedantic -Wall
 LIBS = -l fl -l m
-SRC = y.tab.c helper.c mc.c
+SRC = y.tab.c lex.yy.c helper.c mc.c
 PARSEGEN = yacc -d
-LEXGEN = lex
+LEXGEN = flex -X --header-file=lex.yy.h
 
 all:
 	${PARSEGEN} parser.y
@@ -16,4 +16,4 @@ debug:
 	${CC} -g ${CFLAGS} ${LIBS} ${SRC} -o debug
 
 clean:
-	rm -f lex.yy.c y.tab.c y.tab.h debug mc
+	rm -f lex.yy.c lex.yy.h y.tab.c y.tab.h debug mc

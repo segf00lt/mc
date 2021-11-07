@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include "helper.h"
 
+extern char* progname;
 int yylex(void);
 void yyerror(char* s);
 %}
@@ -130,5 +131,5 @@ n_paren: OPAREN n_expr CPAREN { $$ = $2; }
 %%
 
 void yyerror(char* s) {
-	fprintf(stderr, "%s\n", s);
+	fprintf(stderr, "%s: %s\n", progname, s);
 }
