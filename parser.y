@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
-#include "helper.h"
+#include "mc.h"
 
 extern char* progname;
 extern char domain;
@@ -14,6 +14,7 @@ union Num regs[26];
 int yylex(void);
 void yyerror(char* s);
 
+unsigned long factorial(unsigned long n);
 void output(double r, long z, unsigned long n);
 %}
 
@@ -151,6 +152,13 @@ n_function: ROOT n_paren { $$ = (unsigned long)sqrtl($2); }
 n_paren: OPAREN n_expr CPAREN { $$ = $2; }
        ;
 %%
+
+unsigned long factorial(unsigned long n) {
+	unsigned long result = n;
+	for(unsigned long k = 1; k < n; ++k)
+		result *= k;
+	return result;
+}
 
 void output(double r, long z, unsigned long n) {
 	switch(domain) {

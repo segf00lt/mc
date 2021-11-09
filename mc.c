@@ -2,9 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include "lex.yy.h"
 #include "y.tab.h"
-#include "helper.h"
+#include "mc.h"
 
 #define USAGE "Usage: mc [-nph] [-d[rzn]] [-e EXPRESSION] EXPRESSION ..."
 
@@ -29,13 +31,34 @@ char defaultdomain = 'r';
 
 union Num acc;
 
+int isdir(char* handle) {
+	struct stat s;
+	memset(&s, 0, sizeof(struct stat));
+	stat(handle, &s);
+	return S_ISDIR(s.st_mode);
+}
+
+/* number of decimals in double, 6 is max */
+unsigned int ndecimals(double d) {
+	unsigned int n = 0;
+	int i = d;
+	while((d - (double)i) != 0) {
+		if(n == 6)
+			break;
+		d *= 10;
+		i = d;
+		++n;
+	}
+	return n;
+}
+
 void cleanup(void) {
 	for(int i = 0; i < file_pos; ++i)
 		fclose(file[i]);
 }
 
 char errstr[64];
-void errhandle(void) {
+void errhandle(char* errstr) {
 	fprintf(stderr, "%s\n", errstr);
 	cleanup();
 	exit(1);
@@ -53,7 +76,7 @@ void fileinput(void) {
 			int linelen = strlen(linebuf);
 			if(linelen >= 250) {
 				sprintf(errstr, "%s: expression %d too long", progname, lnum);
-				errhandle();
+				errhandle(errstr);
 			}
 			if(linelen == 1 && linebuf[0] == '\n') {
 				++lnum;
@@ -73,11 +96,11 @@ void fileinput(void) {
 			buf[buf_pos++] = 0;
 			yy_scan_string(buf);
 
-			if(file_pos > 1)
+			if(flags.readfile)
 				printf("%s: ", handle[i]);
 			if(flags.linenumber)
 				printf("%d: ", lnum);
-			if(flags.printexpr) {
+			if(flags.printexpr & !flags.accumulate) {
 				strncpy(tmp, linebuf, linelen - 1);
 				tmp[linelen - 1] = 0;
 				printf("%s = ", tmp);
@@ -114,7 +137,7 @@ void strinput(void) {
 
 		if(exprlen >= 250) {
 			sprintf(errstr, "%s: expression %d too long", progname, j + 1);
-			errhandle();
+			errhandle(errstr);
 		}
 
 		if(
@@ -132,7 +155,7 @@ void strinput(void) {
 		buf[buf_pos++] = '\n';
 		buf[buf_pos++] = 0;
 		yy_scan_string(buf);
-		if(flags.printexpr) {
+		if(flags.printexpr & !flags.accumulate) {
 			strcpy(tmp, expr[j]);
 			tmp[exprlen] = 0;
 			printf("%s = ", tmp);
@@ -172,8 +195,9 @@ int main(int argc, char* argv[]) {
 			case 'e':
 				if(expr_pos == 31) {
 					sprintf(errstr, "%s: too many expressions", progname);
-					errhandle();
+					errhandle(errstr);
 				}
+				flags.readarg = 1;
 				expr[expr_pos++] = optarg;
 				break;
 			case 'd':
@@ -183,18 +207,19 @@ int main(int argc, char* argv[]) {
 				}
 				else {
 					sprintf(errstr, "%s: domain already set", progname);
-					errhandle();
+					errhandle(errstr);
 				}
 				break;
 			case 'f':
 				if(file_pos == 31) {
 					sprintf(errstr, "%s: too many files", progname);
-					errhandle();
+					errhandle(errstr);
 				}
 				if(isdir(optarg)) {
 					sprintf(errstr, "%s: %s is a directory", progname, optarg);
-					errhandle();
+					errhandle(errstr);
 				}
+				flags.readfile = 1;
 				handle[handle_pos++] = optarg;
 				file[file_pos++] = fopen(optarg, "r");
 				break;
@@ -217,27 +242,28 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	while(optind < argc)
+	while(optind < argc) {
 		expr[expr_pos++] = argv[optind++];
-
-	int i = file_pos + expr_pos;
-	if(i != file_pos && i != expr_pos) {
-		sprintf(errstr, "%s: only one input source allowed at a time", progname);
-		errhandle();
+		flags.readarg = 1;
 	}
 
-	if(i == 0) {
+	if(flags.readarg & flags.readfile) {
+		sprintf(errstr, "%s: only one input source allowed at a time", progname);
+		errhandle(errstr);
+	}
+
+	if(!(flags.readarg | flags.readfile)) {
 		file[file_pos++] = stdin;
 		fileinput();
 		cleanup();
 		return 0;
 	}
 
-	if(i == expr_pos) {
+	if(flags.readarg) {
 		strinput();
 		cleanup();
 		return 0;
-	} else if(file_pos) {
+	} else if(flags.readfile) {
 		fileinput();
 		cleanup();
 		return 0;

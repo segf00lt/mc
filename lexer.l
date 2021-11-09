@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "y.tab.h"
-#include "helper.h"
+#include "mc.h"
 #define YY_NO_INPUT
 #define YY_NO_UNPUT
 extern char domain;

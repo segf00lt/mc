@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -pedantic -Wall
 LIBS = -l fl -l m
-SRC = y.tab.c lex.yy.c helper.c mc.c
+SRC = y.tab.c lex.yy.c mc.c
 PARSEGEN = yacc -d
 LEXGEN = flex -X --header-file=lex.yy.h
 

@@ -1,8 +1,9 @@
-
-#ifndef HELPER_H
-#define HELPER_H
+#ifndef MC_H
+#define MC_H
 
 struct Flags {
+	unsigned int readfile : 1;
+	unsigned int readarg : 1;
 	unsigned int printexpr : 1;
 	unsigned int linenumber : 1;
 	unsigned int domainset : 1;
@@ -18,6 +19,10 @@ union Num {
 
 int isdir(char* handle);
 unsigned int ndecimals(double d);
-unsigned long factorial(unsigned long n);
+void cleanup(void);
+void errhandle(char* errstr);
+void print(void);
+void fileinput(void);
+void strinput(void);
 
 #endif
