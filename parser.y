@@ -7,6 +7,7 @@
 extern char* progname;
 extern char domain;
 extern union Num outreg;
+extern union Num acc;
 extern struct Flags flags;
 
 union Num regs[26];
@@ -15,7 +16,6 @@ int yylex(void);
 void yyerror(char* s);
 
 unsigned long factorial(unsigned long n);
-void output(double r, long z, unsigned long n);
 %}
 
 %union {
@@ -57,12 +57,12 @@ void output(double r, long z, unsigned long n);
 %type <n> n_expr n_primary n_function n_paren
 
 %%
-start: R_DOMAIN r_expr END { output($2, 0, 0); }
-     | Z_DOMAIN z_expr END { output(0, $2, 0); }
-     | N_DOMAIN n_expr END { output(0, 0, $2); }
-     | R_DOMAIN VAR ASSIGN r_expr END { regs[$2].r = $4; output($4, 0, 0); }
-     | Z_DOMAIN VAR ASSIGN z_expr END { regs[$2].z = $4; output(0, $4, 0); }
-     | N_DOMAIN VAR ASSIGN n_expr END { regs[$2].n = $4; output(0, 0, $4); }
+start: R_DOMAIN r_expr END { outreg.r = $2; acc.r += $2; flags.assigned = 0; }
+     | Z_DOMAIN z_expr END { outreg.z = $2; acc.z += $2; flags.assigned = 0;}
+     | N_DOMAIN n_expr END { outreg.n = $2; acc.n += $2; flags.assigned = 0;}
+     | R_DOMAIN VAR ASSIGN r_expr END { regs[$2].r = $4; flags.assigned = 1; }
+     | Z_DOMAIN VAR ASSIGN z_expr END { regs[$2].z = $4; flags.assigned = 1; }
+     | N_DOMAIN VAR ASSIGN n_expr END { regs[$2].n = $4; flags.assigned = 1; }
      ;
 r_expr: r_primary { $$ = $1; }
       | r_function { $$ = $1; }
@@ -158,26 +158,6 @@ unsigned long factorial(unsigned long n) {
 	for(unsigned long k = 1; k < n; ++k)
 		result *= k;
 	return result;
-}
-
-void output(double r, long z, unsigned long n) {
-	switch(domain) {
-		case 'r':
-			outreg.r = (flags.accumulate ? outreg.r : 0) + r;
-			if(!flags.last)
-				printf("%.*f\n", ndecimals(outreg.r), outreg.r);
-			return;
-		case 'z':
-			outreg.z = (flags.accumulate ? outreg.z : 0) + z;
-			if(!flags.last)
-				printf("%ld\n", outreg.z);
-			return;
-		case 'n':
-			outreg.n = (flags.accumulate ? outreg.n : 0) + n;
-			if(!flags.last)
-				printf("%lu\n", outreg.n);
-			return;
-	}
 }
 
 void yyerror(char* s) {

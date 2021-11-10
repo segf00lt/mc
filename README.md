@@ -5,14 +5,8 @@ finished, it'll be able to do relational, bitwise and arithmetic operations on
 real, whole and natural numbers (some operations are restricted to certain
 domains, see `parser.y`).
 
-## Potential features
-
-- Do algebra (simplify expressions, solve equations and systems of equations)
-- Maybe do calculus
-- Output algebra in `roff` and/or TeX syntax
-
 ## TODO
 
-- Write a `print()` function
 - Add relational operations to `mc`
-- Learn about computer algebra
+- Learn about computer algebra. (The removed "potential features" section may
+  serve as ideas for a separate program)

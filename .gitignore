@@ -1,11 +1,10 @@
 *.py
 tags
 computer_algebra_Joel_S_Cohen.pdf
-test
+test*
 debug
 mc
 lex.yy.*
 y.tab.*
-testing/
 a.out
 save.vim

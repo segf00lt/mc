@@ -4,11 +4,12 @@
 struct Flags {
 	unsigned int readfile : 1;
 	unsigned int readarg : 1;
-	unsigned int printexpr : 1;
+	unsigned int print : 1;
 	unsigned int linenumber : 1;
 	unsigned int domainset : 1;
 	unsigned int accumulate : 1;
 	unsigned int last : 1;
+	unsigned int assigned : 1;
 };
 
 union Num {
@@ -17,13 +18,13 @@ union Num {
 	unsigned long n;
 };
 
-char* strmaxcpy(char* dest, char* src, size_t max);
+int isreg(char* handle);
 int isdir(char* handle);
 unsigned int ndecimals(double d);
 void cleanup(void);
 void errhandle(char* errstr);
 void print(void);
-void fileinput(void);
-void strinput(void);
+void readfile(void);
+void readstr(void);
 
 #endif

@@ -8,7 +8,7 @@
 #include "y.tab.h"
 #include "mc.h"
 
-#define USAGE "Usage: mc [-nph] [-d[rzn]] [-e EXPRESSION] EXPRESSION ..."
+#define USAGE "Usage: mc [-nalph] [-d[rzn]] [-e EXPRESSION] [-f FILE] EXPRESSION ..."
 
 char* progname = NULL;
 
@@ -16,6 +16,7 @@ struct Flags flags;
 
 char* handle[32];
 int handle_len = 0;
+char* curhandle = NULL;
 
 FILE* file[32];
 int file_len = 0;
@@ -30,6 +31,17 @@ char domain = 'r';
 char defaultdomain = 'r';
 
 union Num outreg;
+union Num acc;
+
+/* line number */
+int lnum = 1;
+
+int isreg(char* handle) {
+	struct stat s;
+	memset(&s, 0, sizeof(struct stat));
+	stat(handle, &s);
+	return S_ISREG(s.st_mode);
+}
 
 int isdir(char* handle) {
 	struct stat s;
@@ -64,74 +76,88 @@ void errhandle(char* errstr) {
 	exit(1);
 }
 
-void fileinput(void) {
-	char linebuf[256];
-	char tmp[256];
-
-	for(int i = 0; i < file_len; ++i) {
-		FILE* fp = file[i];
-		int lnum = 1;
-
-		while((fgets(linebuf, 256, fp)) != NULL) {
-			int linelen = strlen(linebuf);
-			if(linelen >= 250) {
-				sprintf(errstr, "%s: expression %d too long", progname, lnum);
-				errhandle(errstr);
-			}
-			if(linelen == 1 && linebuf[0] == '\n') {
-				++lnum;
-				continue;
-			}
-			if(
-					(strstr(linebuf, "r:")) != linebuf &&
-					(strstr(linebuf, "z:")) != linebuf &&
-					(strstr(linebuf, "n:")) != linebuf
-			  )
-			{
-				buf[buf_len++] = defaultdomain;
-				buf[buf_len++] = ':';
-			}
-			for(char* c = linebuf; *c != 0; ++c)
-				buf[buf_len++] = *c;
-			buf[buf_len++] = 0;
-			yy_scan_string(buf);
-
-			if(flags.readfile)
-				printf("%s: ", handle[i]);
-			if(flags.linenumber)
-				printf("%d: ", lnum);
-			if(flags.printexpr & !flags.accumulate) {
-				strncpy(tmp, linebuf, linelen - 1);
-				tmp[linelen - 1] = 0;
-				printf("%s = ", tmp);
-			}
-
-			yyparse();
-			yylex_destroy();
-			domain = defaultdomain;
-			buf_len = 0;
-			++lnum;
-		}
-
-		if(flags.last) {
-			switch(domain) {
-				case 'r':
-					printf("%.*f\n", ndecimals(outreg.r), outreg.r);
-					return;
-				case 'z':
-					printf("%ld\n", outreg.z);
-					return;
-				case 'n':
-					printf("%lu\n", outreg.n);
-					return;
-			}
+void print(void) {
+	if(file_len > 1)
+		printf("%s: ", curhandle);
+	if(flags.linenumber & flags.readfile)
+		printf("%d: ", lnum);
+	if(flags.print) {
+		buf[buf_len - 2] = 0;
+		printf("%s%s", buf, flags.assigned ? "\n" : " -> ");
+	}
+	if(!flags.assigned) {
+		switch(domain) {
+			case 'r':
+				printf("%.*f\n", ndecimals(outreg.r), outreg.r);
+				break;
+			case 'z':
+				printf("%ld\n", outreg.z);
+				break;
+			case 'n':
+				printf("%lu\n", outreg.n);
+				break;
 		}
 	}
 }
 
-void strinput(void) {
-	char tmp[256];
+void readfile(void) {
+	char line[256];
+	FILE* fp = NULL;
 
+	for(int i = 0; i < file_len; ++i) {
+		fp = file[i];
+		curhandle = handle[i];
+		lnum = 1;
+
+		while((fgets(line, 256, fp)) != NULL) {
+			int len = strlen(line);
+
+			if(len >= 250) {
+				sprintf(errstr, "%s: expression %d too long", progname, lnum);
+				errhandle(errstr);
+			}
+
+			if(len == 1 && line[0] == '\n') {
+				++lnum;
+				continue;
+			}
+
+			if( (strstr(line, "r:")) != line &&
+			    (strstr(line, "z:")) != line &&
+			    (strstr(line, "n:")) != line )
+			{
+				buf[buf_len++] = defaultdomain;
+				buf[buf_len++] = ':';
+			} else if(flags.accumulate && line[0] != defaultdomain) {
+				sprintf(errstr, "%s: accumulate invalid for multi domain input", progname);
+				errhandle(errstr);
+			}
+
+			for(char* c = line; *c != 0; ++c)
+				buf[buf_len++] = *c;
+			buf[buf_len++] = 0;
+
+			yy_scan_string(buf);
+			if(yyparse()) {
+				yylex_destroy();
+				cleanup();
+				exit(1);
+			}
+			yylex_destroy();
+
+			if(!flags.last)
+				print();
+
+			domain = defaultdomain;
+			buf_len = 0;
+
+			/* increment line number */
+			++lnum;
+		}
+	}
+}
+
+void readstr(void) {
 	for(int j = 0; j < expr_len; ++j) {
 		int exprlen = strlen(expr[j]);
 
@@ -140,44 +166,35 @@ void strinput(void) {
 			errhandle(errstr);
 		}
 
-		if(
-				(strstr(expr[j], "r:")) != expr[j] &&
-				(strstr(expr[j], "z:")) != expr[j] &&
-				(strstr(expr[j], "n:")) != expr[j]
-		)
+		if( (strstr(expr[j], "r:")) != expr[j] &&
+		    (strstr(expr[j], "z:")) != expr[j] &&
+		    (strstr(expr[j], "n:")) != expr[j])
 		{
 			buf[buf_len++] = defaultdomain;
 			buf[buf_len++] = ':';
+		} else if(flags.accumulate && expr[j][0] != defaultdomain) {
+			sprintf(errstr, "%s: accumulate invalid for multi domain input", progname);
+			errhandle(errstr);
 		}
 
 		for(char* c = expr[j]; *c != 0; ++c)
 			buf[buf_len++] = *c;
 		buf[buf_len++] = '\n';
 		buf[buf_len++] = 0;
+
 		yy_scan_string(buf);
-		if(flags.printexpr & !flags.accumulate) {
-			strcpy(tmp, expr[j]);
-			tmp[exprlen] = 0;
-			printf("%s = ", tmp);
+		if(yyparse()) {
+			yylex_destroy();
+			cleanup();
+			exit(1);
 		}
-		yyparse();
 		yylex_destroy();
+
+		if(!flags.last)
+			print();
+
 		domain = defaultdomain;
 		buf_len = 0;
-	}
-
-	if(flags.last) {
-		switch(domain) {
-			case 'r':
-				printf("%.*f\n", ndecimals(outreg.r), outreg.r);
-				return;
-			case 'z':
-				printf("%ld\n", outreg.z);
-				return;
-			case 'n':
-				printf("%lu\n", outreg.n);
-				return;
-		}
 	}
 }
 
@@ -219,19 +236,23 @@ int main(int argc, char* argv[]) {
 					sprintf(errstr, "%s: %s is a directory", progname, optarg);
 					errhandle(errstr);
 				}
+				if(!isreg(optarg)) {
+					sprintf(errstr, "%s: no such file: %s", progname, optarg);
+					errhandle(errstr);
+				}
 				flags.readfile = 1;
 				handle[handle_len++] = optarg;
 				file[file_len++] = fopen(optarg, "r");
 				break;
 			case 'a':
-				flags.last = 1;
 				flags.accumulate = 1;
 				break;
 			case 'l':
+				/* only affects output when used with accumulate */
 				flags.last = 1;
 				break;
 			case 'p':
-				flags.printexpr = 1;
+				flags.print = 1;
 				break;
 			case 'n':
 				flags.linenumber = 1;
@@ -254,21 +275,34 @@ int main(int argc, char* argv[]) {
 
 	if(!(flags.readarg | flags.readfile)) {
 		file[file_len++] = stdin;
-		fileinput();
-		cleanup();
-		return 0;
+		readfile();
+		goto end;
 	}
 
 	if(flags.readarg) {
-		strinput();
-		cleanup();
-		return 0;
+		readstr();
+		goto end;
 	} else if(flags.readfile) {
-		fileinput();
-		cleanup();
-		return 0;
+		readfile();
+		goto end;
 	}
 
+end:
+	if(flags.accumulate & !flags.assigned) {
+		if(flags.print)
+			printf("total -> ");
+		switch(domain) {
+			case 'r':
+				printf("%.*f\n", ndecimals(acc.r), acc.r);
+				break;
+			case 'z':
+				printf("%ld\n", acc.z);
+				break;
+			case 'n':
+				printf("%lu\n", acc.n);
+				break;
+		}
+	}
 	cleanup();
-	return 1;
+	return 0;
 }
