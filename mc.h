@@ -17,6 +17,7 @@ union Num {
 	unsigned long n;
 };
 
+char* strmaxcpy(char* dest, char* src, size_t max);
 int isdir(char* handle);
 unsigned int ndecimals(double d);
 void cleanup(void);

@@ -6,7 +6,7 @@
 
 extern char* progname;
 extern char domain;
-extern union Num acc;
+extern union Num outreg;
 extern struct Flags flags;
 
 union Num regs[26];
@@ -163,19 +163,19 @@ unsigned long factorial(unsigned long n) {
 void output(double r, long z, unsigned long n) {
 	switch(domain) {
 		case 'r':
-			acc.r = (flags.accumulate ? acc.r : 0) + r;
+			outreg.r = (flags.accumulate ? outreg.r : 0) + r;
 			if(!flags.last)
-				printf("%.*f\n", ndecimals(acc.r), acc.r);
+				printf("%.*f\n", ndecimals(outreg.r), outreg.r);
 			return;
 		case 'z':
-			acc.z = (flags.accumulate ? acc.z : 0) + z;
+			outreg.z = (flags.accumulate ? outreg.z : 0) + z;
 			if(!flags.last)
-				printf("%ld\n", acc.z);
+				printf("%ld\n", outreg.z);
 			return;
 		case 'n':
-			acc.n = (flags.accumulate ? acc.n : 0) + n;
+			outreg.n = (flags.accumulate ? outreg.n : 0) + n;
 			if(!flags.last)
-				printf("%lu\n", acc.n);
+				printf("%lu\n", outreg.n);
 			return;
 	}
 }

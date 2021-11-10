@@ -15,21 +15,21 @@ char* progname = NULL;
 struct Flags flags;
 
 char* handle[32];
-int handle_pos = 0;
+int handle_len = 0;
 
 FILE* file[32];
-int file_pos = 0;
+int file_len = 0;
 
 char* expr[32];
-int expr_pos = 0;
+int expr_len = 0;
 
 char buf[256];
-int buf_pos = 0;
+int buf_len = 0;
 
 char domain = 'r';
 char defaultdomain = 'r';
 
-union Num acc;
+union Num outreg;
 
 int isdir(char* handle) {
 	struct stat s;
@@ -53,7 +53,7 @@ unsigned int ndecimals(double d) {
 }
 
 void cleanup(void) {
-	for(int i = 0; i < file_pos; ++i)
+	for(int i = 0; i < file_len; ++i)
 		fclose(file[i]);
 }
 
@@ -68,7 +68,7 @@ void fileinput(void) {
 	char linebuf[256];
 	char tmp[256];
 
-	for(int i = 0; i < file_pos; ++i) {
+	for(int i = 0; i < file_len; ++i) {
 		FILE* fp = file[i];
 		int lnum = 1;
 
@@ -88,12 +88,12 @@ void fileinput(void) {
 					(strstr(linebuf, "n:")) != linebuf
 			  )
 			{
-				buf[buf_pos++] = defaultdomain;
-				buf[buf_pos++] = ':';
+				buf[buf_len++] = defaultdomain;
+				buf[buf_len++] = ':';
 			}
 			for(char* c = linebuf; *c != 0; ++c)
-				buf[buf_pos++] = *c;
-			buf[buf_pos++] = 0;
+				buf[buf_len++] = *c;
+			buf[buf_len++] = 0;
 			yy_scan_string(buf);
 
 			if(flags.readfile)
@@ -109,20 +109,20 @@ void fileinput(void) {
 			yyparse();
 			yylex_destroy();
 			domain = defaultdomain;
-			buf_pos = 0;
+			buf_len = 0;
 			++lnum;
 		}
 
 		if(flags.last) {
 			switch(domain) {
 				case 'r':
-					printf("%.*f\n", ndecimals(acc.r), acc.r);
+					printf("%.*f\n", ndecimals(outreg.r), outreg.r);
 					return;
 				case 'z':
-					printf("%ld\n", acc.z);
+					printf("%ld\n", outreg.z);
 					return;
 				case 'n':
-					printf("%lu\n", acc.n);
+					printf("%lu\n", outreg.n);
 					return;
 			}
 		}
@@ -132,7 +132,7 @@ void fileinput(void) {
 void strinput(void) {
 	char tmp[256];
 
-	for(int j = 0; j < expr_pos; ++j) {
+	for(int j = 0; j < expr_len; ++j) {
 		int exprlen = strlen(expr[j]);
 
 		if(exprlen >= 250) {
@@ -146,14 +146,14 @@ void strinput(void) {
 				(strstr(expr[j], "n:")) != expr[j]
 		)
 		{
-			buf[buf_pos++] = defaultdomain;
-			buf[buf_pos++] = ':';
+			buf[buf_len++] = defaultdomain;
+			buf[buf_len++] = ':';
 		}
 
 		for(char* c = expr[j]; *c != 0; ++c)
-			buf[buf_pos++] = *c;
-		buf[buf_pos++] = '\n';
-		buf[buf_pos++] = 0;
+			buf[buf_len++] = *c;
+		buf[buf_len++] = '\n';
+		buf[buf_len++] = 0;
 		yy_scan_string(buf);
 		if(flags.printexpr & !flags.accumulate) {
 			strcpy(tmp, expr[j]);
@@ -163,19 +163,19 @@ void strinput(void) {
 		yyparse();
 		yylex_destroy();
 		domain = defaultdomain;
-		buf_pos = 0;
+		buf_len = 0;
 	}
 
 	if(flags.last) {
 		switch(domain) {
 			case 'r':
-				printf("%.*f\n", ndecimals(acc.r), acc.r);
+				printf("%.*f\n", ndecimals(outreg.r), outreg.r);
 				return;
 			case 'z':
-				printf("%ld\n", acc.z);
+				printf("%ld\n", outreg.z);
 				return;
 			case 'n':
-				printf("%lu\n", acc.n);
+				printf("%lu\n", outreg.n);
 				return;
 		}
 	}
@@ -183,7 +183,7 @@ void strinput(void) {
 
 int main(int argc, char* argv[]) {
 	progname = argv[0];
-	memset(&acc, 0, sizeof(union Num));
+	memset(&outreg, 0, sizeof(union Num));
 
 	int c;
 	while((c = getopt(argc, argv, "e:d:f:nphal")) != -1) {
@@ -193,12 +193,12 @@ int main(int argc, char* argv[]) {
 				cleanup();
 				exit(0);
 			case 'e':
-				if(expr_pos == 31) {
+				if(expr_len == 31) {
 					sprintf(errstr, "%s: too many expressions", progname);
 					errhandle(errstr);
 				}
 				flags.readarg = 1;
-				expr[expr_pos++] = optarg;
+				expr[expr_len++] = optarg;
 				break;
 			case 'd':
 				if(!flags.domainset) {
@@ -211,7 +211,7 @@ int main(int argc, char* argv[]) {
 				}
 				break;
 			case 'f':
-				if(file_pos == 31) {
+				if(file_len == 31) {
 					sprintf(errstr, "%s: too many files", progname);
 					errhandle(errstr);
 				}
@@ -220,8 +220,8 @@ int main(int argc, char* argv[]) {
 					errhandle(errstr);
 				}
 				flags.readfile = 1;
-				handle[handle_pos++] = optarg;
-				file[file_pos++] = fopen(optarg, "r");
+				handle[handle_len++] = optarg;
+				file[file_len++] = fopen(optarg, "r");
 				break;
 			case 'a':
 				flags.last = 1;
@@ -243,7 +243,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	while(optind < argc) {
-		expr[expr_pos++] = argv[optind++];
+		expr[expr_len++] = argv[optind++];
 		flags.readarg = 1;
 	}
 
@@ -253,7 +253,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	if(!(flags.readarg | flags.readfile)) {
-		file[file_pos++] = stdin;
+		file[file_len++] = stdin;
 		fileinput();
 		cleanup();
 		return 0;

@@ -6,7 +6,6 @@
 #define YY_NO_INPUT
 #define YY_NO_UNPUT
 extern char domain;
-extern union Num acc;
 %}
 
 %%
