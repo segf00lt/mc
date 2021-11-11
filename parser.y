@@ -10,7 +10,12 @@ extern union Num outreg;
 extern union Num acc;
 extern struct Flags flags;
 
-union Num regs[26];
+struct Var {
+	union Num v;
+	char d;
+};
+struct Var regs[26];
+//union Num regs[26];
 
 int yylex(void);
 void yyerror(char* s);
@@ -60,9 +65,9 @@ unsigned long factorial(unsigned long n);
 start: R_DOMAIN r_expr END { outreg.r = $2; acc.r += $2; flags.assigned = 0; }
      | Z_DOMAIN z_expr END { outreg.z = $2; acc.z += $2; flags.assigned = 0;}
      | N_DOMAIN n_expr END { outreg.n = $2; acc.n += $2; flags.assigned = 0;}
-     | R_DOMAIN VAR ASSIGN r_expr END { regs[$2].r = $4; flags.assigned = 1; }
-     | Z_DOMAIN VAR ASSIGN z_expr END { regs[$2].z = $4; flags.assigned = 1; }
-     | N_DOMAIN VAR ASSIGN n_expr END { regs[$2].n = $4; flags.assigned = 1; }
+     | R_DOMAIN VAR ASSIGN r_expr END { regs[$2].v.r = $4; regs[$2].d = 'r'; flags.assigned = 1; }
+     | Z_DOMAIN VAR ASSIGN z_expr END { regs[$2].v.z = $4; regs[$2].d = 'z'; flags.assigned = 1; }
+     | N_DOMAIN VAR ASSIGN n_expr END { regs[$2].v.n = $4; regs[$2].d = 'n'; flags.assigned = 1; }
      ;
 r_expr: r_primary { $$ = $1; }
       | r_function { $$ = $1; }
@@ -76,9 +81,12 @@ r_expr: r_primary { $$ = $1; }
 r_primary: REAL { $$ = $1; }
 	 | ADD REAL { $$ = $2; }
 	 | SUB REAL { $$ = -$2; }
-	 | VAR { $$ = regs[$1].r; }
-	 | ADD VAR { $$ = regs[$2].r; }
-	 | SUB VAR { $$ = -regs[$2].r; }
+	 | VAR { if(regs[$1].d != 'r') { yyerror("non real var in real expression"); return 1; }
+		$$ = regs[$1].v.r; }
+	 | ADD VAR { if(regs[$2].d != 'r') { yyerror("non real var in real expression"); return 1; }
+		$$ = regs[$2].v.r; }
+	 | SUB VAR { if(regs[$2].d != 'r') { yyerror("non real var in real expression"); return 1; }
+	 	$$ = -regs[$2].v.r; }
          | PI { $$ = $1; }
          | E { $$ = $1; }
 	 | ADD PI { $$ = $2; }
@@ -111,9 +119,12 @@ z_expr: z_primary { $$ = $1; }
       | z_expr POW z_expr { $$ = (long)powl($1, $3); }
       ;
 z_primary: WHOLE { $$ = $1; }
-	 | VAR { $$ = regs[$1].z; }
-	 | ADD VAR { $$ = regs[$2].z; }
-	 | SUB VAR { $$ = -regs[$2].z; }
+	 | VAR { if(regs[$1].d != 'z') { yyerror("non whole var in whole expression"); return 1; }
+	 	$$ = regs[$1].v.z; }
+	 | ADD VAR { if(regs[$2].d != 'z') { yyerror("non whole var in whole expression"); return 1; }
+	 	$$ = regs[$2].v.z; }
+	 | SUB VAR { if(regs[$2].d != 'z') { yyerror("non whole var in whole expression"); return 1; }
+	 	$$ = -regs[$2].v.z; }
 	 | ADD WHOLE { $$ = $2; }
 	 | SUB WHOLE { $$ = -$2; }
 	 | z_paren { $$ = $1; }
@@ -141,7 +152,8 @@ n_expr: n_primary { $$ = $1; }
       | n_expr FACT { $$ = factorial($1); }
       ;
 n_primary: NATURAL { $$ = $1; }
-	 | VAR { $$ = regs[$1].z; }
+	 | VAR { if(regs[$1].d != 'n') { yyerror("non natural var in natural expression"); return 1; }
+	 	$$ = regs[$1].v.z; }
 	 | NOT n_primary { $$ = $2; }
 	 | n_paren { $$ = $1; }
 	 ;
