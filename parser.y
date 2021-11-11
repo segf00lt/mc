@@ -15,7 +15,6 @@ struct Var {
 	char d;
 };
 struct Var regs[26];
-//union Num regs[26];
 
 int yylex(void);
 void yyerror(char* s);
