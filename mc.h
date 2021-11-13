@@ -1,6 +1,10 @@
 #ifndef MC_H
 #define MC_H
 
+#define USAGE "Usage: mc [-nalpbh] [-e EXPRESSION] [-f FILE] EXPRESSION ..."
+#define BINMODE 1
+#define SCIMODE 0
+
 struct Flags {
 	unsigned int readfile : 1;
 	unsigned int readarg : 1;
@@ -9,7 +13,8 @@ struct Flags {
 	unsigned int accumulate : 1;
 	unsigned int last : 1;
 	unsigned int assigned : 1;
-	unsigned int binary : 1;
+	unsigned int mode : 1;
+	unsigned int setmode : 1;
 };
 
 union Num {

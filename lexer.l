@@ -19,11 +19,11 @@ extern struct Flags flags;
 		return REAL;
 }
 [0-9]+ { 
-	switch(flags.binary) {
-		case 0:
+	switch(flags.mode) {
+		case SCIMODE:
 			yylval.r = atof(yytext);
 			return REAL;
-		case 1:
+		case BINMODE:
 			yylval.n = atol(yytext);
 			return NATURAL;
 	}
@@ -32,10 +32,10 @@ pi { yylval.r = M_PI; return PI; }
 euler { yylval.r = M_E; return E; }
 [a-z] {
 	yylval.reg = yytext[0] - 'a';
-	switch(flags.binary) {
-		case 0:
+	switch(flags.mode) {
+		case SCIMODE:
 			return R_VAR;
-		case 1:
+		case BINMODE:
 			return N_VAR;
 	}
 }

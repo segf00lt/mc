@@ -8,8 +8,6 @@
 #include "y.tab.h"
 #include "mc.h"
 
-#define USAGE "Usage: mc [-nalpbh] [-e EXPRESSION] [-f FILE] EXPRESSION ..."
-
 char* progname = NULL;
 
 struct Flags flags;
@@ -83,11 +81,11 @@ void print(void) {
 		printf("%s%s", buf, flags.assigned ? "\n" : " -> ");
 	}
 	if(!flags.assigned) {
-		switch(flags.binary) {
-			case 0:
+		switch(flags.mode) {
+			case SCIMODE:
 				printf("%.*f\n", ndecimals(outreg.r), outreg.r);
 				break;
-			case 1:
+			case BINMODE:
 				printf("%lu\n", outreg.n);
 				break;
 		}
@@ -173,7 +171,7 @@ int main(int argc, char* argv[]) {
 	memset(&outreg, 0, sizeof(union Num));
 
 	int c;
-	while((c = getopt(argc, argv, "e:f:nbphal")) != -1) {
+	while((c = getopt(argc, argv, "e:f:nbsphal")) != -1) {
 		switch(c) {
 			case 'h':
 				fprintf(stderr, "%s\n", USAGE);
@@ -204,8 +202,19 @@ int main(int argc, char* argv[]) {
 				handle[handle_len++] = optarg;
 				file[file_len++] = fopen(optarg, "r");
 				break;
+			case 's':
+				if(flags.setmode) {
+					sprintf(errstr, "%s: mode flag set multiple times", progname);
+					errhandle(errstr);
+				}
+				flags.mode = SCIMODE;
+				break;
 			case 'b':
-				flags.binary = 1;
+				if(flags.setmode) {
+					sprintf(errstr, "%s: mode flag set multiple times", progname);
+					errhandle(errstr);
+				}
+				flags.mode = BINMODE;
 				break;
 			case 'a':
 				flags.accumulate = 1;
@@ -254,11 +263,11 @@ end:
 	if(flags.accumulate & !flags.assigned) {
 		if(flags.print)
 			printf("total -> ");
-		switch(flags.binary) {
-			case 0:
+		switch(flags.mode) {
+			case SCIMODE:
 				printf("%.*f\n", ndecimals(acc.r), acc.r);
 				break;
-			case 1:
+			case BINMODE:
 				printf("%lu\n", acc.n);
 				break;
 		}
