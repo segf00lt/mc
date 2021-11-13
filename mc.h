@@ -6,15 +6,14 @@ struct Flags {
 	unsigned int readarg : 1;
 	unsigned int print : 1;
 	unsigned int linenumber : 1;
-	unsigned int domainset : 1;
 	unsigned int accumulate : 1;
 	unsigned int last : 1;
 	unsigned int assigned : 1;
+	unsigned int binary : 1;
 };
 
 union Num {
 	double r;
-	long z;
 	unsigned long n;
 };
 

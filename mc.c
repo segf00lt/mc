@@ -8,7 +8,7 @@
 #include "y.tab.h"
 #include "mc.h"
 
-#define USAGE "Usage: mc [-nalph] [-d[rzn]] [-e EXPRESSION] [-f FILE] EXPRESSION ..."
+#define USAGE "Usage: mc [-nalpbh] [-e EXPRESSION] [-f FILE] EXPRESSION ..."
 
 char* progname = NULL;
 
@@ -26,9 +26,6 @@ int expr_len = 0;
 
 char buf[256];
 int buf_len = 0;
-
-char domain = 0;
-char defaultdomain = 0;
 
 union Num outreg;
 union Num acc;
@@ -86,14 +83,11 @@ void print(void) {
 		printf("%s%s", buf, flags.assigned ? "\n" : " -> ");
 	}
 	if(!flags.assigned) {
-		switch(domain) {
-			case 'r':
+		switch(flags.binary) {
+			case 0:
 				printf("%.*f\n", ndecimals(outreg.r), outreg.r);
 				break;
-			case 'z':
-				printf("%ld\n", outreg.z);
-				break;
-			case 'n':
+			case 1:
 				printf("%lu\n", outreg.n);
 				break;
 		}
@@ -137,7 +131,6 @@ void readfile(void) {
 			if(!flags.last)
 				print();
 
-			domain = defaultdomain;
 			buf_len = 0;
 
 			/* increment line number */
@@ -171,7 +164,6 @@ void readstr(void) {
 		if(!flags.last)
 			print();
 
-		domain = defaultdomain;
 		buf_len = 0;
 	}
 }
@@ -181,7 +173,7 @@ int main(int argc, char* argv[]) {
 	memset(&outreg, 0, sizeof(union Num));
 
 	int c;
-	while((c = getopt(argc, argv, "e:d:f:nphal")) != -1) {
+	while((c = getopt(argc, argv, "e:f:nbphal")) != -1) {
 		switch(c) {
 			case 'h':
 				fprintf(stderr, "%s\n", USAGE);
@@ -194,16 +186,6 @@ int main(int argc, char* argv[]) {
 				}
 				flags.readarg = 1;
 				expr[expr_len++] = optarg;
-				break;
-			case 'd':
-				if(!flags.domainset) {
-					defaultdomain = domain = optarg[0];
-					flags.domainset = 1;
-				}
-				else {
-					sprintf(errstr, "%s: domain already set", progname);
-					errhandle(errstr);
-				}
 				break;
 			case 'f':
 				if(file_len == 31) {
@@ -221,6 +203,9 @@ int main(int argc, char* argv[]) {
 				flags.readfile = 1;
 				handle[handle_len++] = optarg;
 				file[file_len++] = fopen(optarg, "r");
+				break;
+			case 'b':
+				flags.binary = 1;
 				break;
 			case 'a':
 				flags.accumulate = 1;
@@ -246,11 +231,6 @@ int main(int argc, char* argv[]) {
 		flags.readarg = 1;
 	}
 
-	if(flags.accumulate & !flags.domainset) {
-		sprintf(errstr, "%s: default domain must be set for accumulate", progname);
-		errhandle(errstr);
-	}
-
 	if(flags.readarg & flags.readfile) {
 		sprintf(errstr, "%s: only one input source allowed at a time", progname);
 		errhandle(errstr);
@@ -274,14 +254,11 @@ end:
 	if(flags.accumulate & !flags.assigned) {
 		if(flags.print)
 			printf("total -> ");
-		switch(domain) {
-			case 'r':
+		switch(flags.binary) {
+			case 0:
 				printf("%.*f\n", ndecimals(acc.r), acc.r);
 				break;
-			case 'z':
-				printf("%ld\n", acc.z);
-				break;
-			case 'n':
+			case 1:
 				printf("%lu\n", acc.n);
 				break;
 		}

@@ -15,70 +15,27 @@ extern struct Flags flags;
 
 %%
 [0-9]+\.[0-9]* {
-		domain = 'r';
-		if(flags.accumulate && (domain != defaultdomain)) {
-			sprintf(errstr, "%s: accumulate invalid for multi domain input", progname);
-			errhandle(errstr);
-		}
 		yylval.r = atof(yytext);
 		return REAL;
 }
-[0-9]+u {
-	domain = 'n';
-	if(flags.accumulate && (domain != defaultdomain)) {
-		sprintf(errstr, "%s: accumulate invalid for multi domain input", progname);
-		errhandle(errstr);
-	}
-	yytext[yyleng - 1] = 0;
-	yylval.n = atol(yytext);
-	return NATURAL;
-}
 [0-9]+ { 
-	switch(domain) {
-		case 'r':
+	switch(flags.binary) {
+		case 0:
 			yylval.r = atof(yytext);
 			return REAL;
-		case 'z':
-			yylval.z = atol(yytext);
-			return WHOLE;
-		case 'n':
+		case 1:
 			yylval.n = atol(yytext);
 			return NATURAL;
-		default:
-			domain = 'z';
-			if(flags.accumulate && (domain != defaultdomain)) {
-				sprintf(errstr, "%s: accumulate invalid for multi domain input", progname);
-				errhandle(errstr);
-			}
-			yylval.z = atol(yytext);
-			return WHOLE;
-	}
-}
-[rzn]\: {
-	domain = yytext[0];
-	if(flags.accumulate && (domain != defaultdomain)) {
-		sprintf(errstr, "%s: accumulate invalid for multi domain input", progname);
-		errhandle(errstr);
-	}
-	switch(domain) {
-		case 'r':
-			return R_DOMAIN;
-		case 'z':
-			return Z_DOMAIN;
-		case 'n':
-			return N_DOMAIN;
 	}
 }
 pi { yylval.r = M_PI; return PI; }
 euler { yylval.r = M_E; return E; }
 [a-z] {
 	yylval.reg = yytext[0] - 'a';
-	switch(domain) {
-		case 'r':
+	switch(flags.binary) {
+		case 0:
 			return R_VAR;
-		case 'z':
-			return Z_VAR;
-		case 'n':
+		case 1:
 			return N_VAR;
 	}
 }
@@ -108,6 +65,7 @@ root { return ROOT; }
 ln { return LN; }
 abs { return ABS; }
 log { return LOG; }
+log2 { return LOG2; }
 [ \t] ;
 \n { return END; }
 . { return UNDEFINED; }
