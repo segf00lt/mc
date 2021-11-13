@@ -27,8 +27,8 @@ int expr_len = 0;
 char buf[256];
 int buf_len = 0;
 
-char domain = 'r';
-char defaultdomain = 'r';
+char domain = 0;
+char defaultdomain = 0;
 
 union Num outreg;
 union Num acc;
@@ -122,17 +122,6 @@ void readfile(void) {
 				continue;
 			}
 
-			if( (strstr(line, "r:")) != line &&
-			    (strstr(line, "z:")) != line &&
-			    (strstr(line, "n:")) != line )
-			{
-				buf[buf_len++] = defaultdomain;
-				buf[buf_len++] = ':';
-			} else if(flags.accumulate && line[0] != defaultdomain) {
-				sprintf(errstr, "%s: accumulate invalid for multi domain input", progname);
-				errhandle(errstr);
-			}
-
 			for(char* c = line; *c != 0; ++c)
 				buf[buf_len++] = *c;
 			buf[buf_len++] = 0;
@@ -163,17 +152,6 @@ void readstr(void) {
 
 		if(exprlen >= 250) {
 			sprintf(errstr, "%s: expression %d too long", progname, j + 1);
-			errhandle(errstr);
-		}
-
-		if( (strstr(expr[j], "r:")) != expr[j] &&
-		    (strstr(expr[j], "z:")) != expr[j] &&
-		    (strstr(expr[j], "n:")) != expr[j])
-		{
-			buf[buf_len++] = defaultdomain;
-			buf[buf_len++] = ':';
-		} else if(flags.accumulate && expr[j][0] != defaultdomain) {
-			sprintf(errstr, "%s: accumulate invalid for multi domain input", progname);
 			errhandle(errstr);
 		}
 
@@ -266,6 +244,11 @@ int main(int argc, char* argv[]) {
 	while(optind < argc) {
 		expr[expr_len++] = argv[optind++];
 		flags.readarg = 1;
+	}
+
+	if(flags.accumulate & !flags.domainset) {
+		sprintf(errstr, "%s: default domain must be set for accumulate", progname);
+		errhandle(errstr);
 	}
 
 	if(flags.readarg & flags.readfile) {

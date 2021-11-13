@@ -7,6 +7,5 @@ domains, see `parser.y`).
 
 ## TODO
 
+- Simplify
 - Add relational operations to `mc`
-- Learn about computer algebra. (The removed "potential features" section may
-  serve as ideas for a separate program)

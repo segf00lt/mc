@@ -5,31 +5,61 @@
 #include "mc.h"
 #define YY_NO_INPUT
 #define YY_NO_UNPUT
+
+extern char* progname;
+extern char defaultdomain;
 extern char domain;
+extern char errstr[64];
+extern struct Flags flags;
 %}
 
 %%
-[0-9]+\.[0-9]+ { yylval.r = atof(yytext);
+[0-9]+\.[0-9]* {
+		domain = 'r';
+		if(flags.accumulate && (domain != defaultdomain)) {
+			sprintf(errstr, "%s: accumulate invalid for multi domain input", progname);
+			errhandle(errstr);
+		}
+		yylval.r = atof(yytext);
 		return REAL;
+}
+[0-9]+u {
+	domain = 'n';
+	if(flags.accumulate && (domain != defaultdomain)) {
+		sprintf(errstr, "%s: accumulate invalid for multi domain input", progname);
+		errhandle(errstr);
+	}
+	yytext[yyleng - 1] = 0;
+	yylval.n = atol(yytext);
+	return NATURAL;
 }
 [0-9]+ { 
 	switch(domain) {
 		case 'r':
 			yylval.r = atof(yytext);
 			return REAL;
-			break;
 		case 'z':
 			yylval.z = atol(yytext);
 			return WHOLE;
-			break;
 		case 'n':
 			yylval.n = atol(yytext);
 			return NATURAL;
-			break;
+		default:
+			domain = 'z';
+			if(flags.accumulate && (domain != defaultdomain)) {
+				sprintf(errstr, "%s: accumulate invalid for multi domain input", progname);
+				errhandle(errstr);
+			}
+			yylval.z = atol(yytext);
+			return WHOLE;
 	}
 }
-^[rzn]\: {
+[rzn]\: {
 	domain = yytext[0];
+	if(flags.accumulate && (domain != defaultdomain)) {
+		sprintf(errstr, "%s: accumulate invalid for multi domain input", progname);
+		errhandle(errstr);
+	}
 	switch(domain) {
 		case 'r':
 			return R_DOMAIN;
@@ -41,10 +71,21 @@ extern char domain;
 }
 pi { yylval.r = M_PI; return PI; }
 euler { yylval.r = M_E; return E; }
-[a-z] { yylval.reg = yytext[0] - 'a'; return VAR; }
+[a-z] {
+	yylval.reg = yytext[0] - 'a';
+	switch(domain) {
+		case 'r':
+			return R_VAR;
+		case 'z':
+			return Z_VAR;
+		case 'n':
+			return N_VAR;
+	}
+}
 \& { return AND; }
 \| { return OR; }
 \^ { return XOR; }
+\~ { return BNOT; }
 \<\< { return LSHIFT; }
 \>\> { return RSHIFT; }
 \+ { return ADD; }
