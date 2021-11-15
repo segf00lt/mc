@@ -50,7 +50,7 @@ unsigned int ndecimals(double d) {
 	unsigned int n = 0;
 	int i = d;
 	while((d - (double)i) != 0) {
-		if(n == 6)
+		if(n == 12)
 			break;
 		d *= 10;
 		i = d;
@@ -208,6 +208,7 @@ int main(int argc, char* argv[]) {
 					errhandle(errstr);
 				}
 				flags.mode = SCIMODE;
+				flags.setmode = 1;
 				break;
 			case 'b':
 				if(flags.setmode) {
@@ -215,6 +216,7 @@ int main(int argc, char* argv[]) {
 					errhandle(errstr);
 				}
 				flags.mode = BINMODE;
+				flags.setmode = 1;
 				break;
 			case 'a':
 				flags.accumulate = 1;

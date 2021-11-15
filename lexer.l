@@ -24,9 +24,21 @@ extern struct Flags flags;
 			yylval.r = atof(yytext);
 			return REAL;
 		case BINMODE:
-			yylval.n = atol(yytext);
+			yylval.n = strtoul(yytext, NULL, 10);
 			return NATURAL;
 	}
+}
+0[bB][01]+ {
+       yylval.n = strtoul(yytext + 2, NULL, 2);
+       return NATURAL;
+}
+0[oO][0-7]+ {
+       yylval.n = strtoul(yytext + 2, NULL, 8);
+       return NATURAL;
+}
+0[xX][0-9a-fA-F]+ {
+	yylval.n = strtoul(yytext, NULL, 16);
+	return NATURAL;
 }
 pi { yylval.r = M_PI; return PI; }
 euler { yylval.r = M_E; return E; }
@@ -39,14 +51,33 @@ euler { yylval.r = M_E; return E; }
 			return N_VAR;
 	}
 }
+not { return LNOT; }
+and { return LAND; }
+or { return LOR; }
+\< { return LT; }
+\> { return GT; }
+\<\= { return LTEQ; }
+\>\= { return GTEQ; }
+\=\= { return EQ; }
+\!\= { return NEQ; }
+\|\= { return OREQ; }
+\&\= { return ANDEQ; }
+\^\= { return XOREQ; }
+\<\<\= { return LSHIFTEQ; }
+\>\>\= { return RSHIFTEQ; }
+\+\= { return ADDEQ; }
+\-\= { return SUBEQ; }
+\*\= { return MULEQ; }
+\/\= { return DIVEQ; }
+\%\= { return MODEQ; }
 \& { return AND; }
 \| { return OR; }
 \^ { return XOR; }
-\~ { return BNOT; }
+\~ { return NOT; }
 \<\< { return LSHIFT; }
 \>\> { return RSHIFT; }
 \+ { return ADD; }
-\- { return SUB; }
+\\?\- { return SUB; }
 \* { return MUL; }
 \/ { return DIV; }
 \% { return MOD; }
