@@ -5,7 +5,6 @@
 #include "mc.h"
 
 extern char* progname;
-extern char domain;
 extern union Num outreg;
 extern union Num acc;
 extern struct Flags flags;

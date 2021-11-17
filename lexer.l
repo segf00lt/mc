@@ -6,9 +6,6 @@
 #define YY_NO_INPUT
 #define YY_NO_UNPUT
 
-extern char* progname;
-extern char defaultdomain;
-extern char domain;
 extern char errstr[64];
 extern struct Flags flags;
 %}
