@@ -41,16 +41,9 @@ extern struct Flags flags;
 	return NATURAL;
 }
 pi { yylval.r = M_PI; return PI; }
-euler { yylval.r = M_E; return E; }
-[a-z] {
-	yylval.reg = yytext[0] - 'a';
-	switch(flags.mode) {
-		case SCIMODE:
-			return R_VAR;
-		case BINMODE:
-			return N_VAR;
-	}
-}
+e { yylval.r = M_E; return E; }
+if { return IF; }
+else { return ELSE; }
 not { return LNOT; }
 and { return LAND; }
 or { return LOR; }
@@ -60,16 +53,6 @@ or { return LOR; }
 \>\= { return GTEQ; }
 \=\= { return EQ; }
 \!\= { return NEQ; }
-\|\= { return OREQ; }
-\&\= { return ANDEQ; }
-\^\= { return XOREQ; }
-\<\<\= { return LSHIFTEQ; }
-\>\>\= { return RSHIFTEQ; }
-\+\= { return ADDEQ; }
-\-\= { return SUBEQ; }
-\*\= { return MULEQ; }
-\/\= { return DIVEQ; }
-\%\= { return MODEQ; }
 \& { return AND; }
 \| { return OR; }
 \^ { return XOR; }
@@ -85,7 +68,6 @@ or { return LOR; }
 \! { return FACT; }
 \( { return OPAREN; }
 \) { return CPAREN; }
-\= { return ASSIGN; }
 sin { return SIN; }
 cos { return COS; }
 tan { return TAN; }

@@ -12,7 +12,6 @@ struct Flags {
 	unsigned int linenumber : 1;
 	unsigned int accumulate : 1;
 	unsigned int last : 1;
-	unsigned int assigned : 1;
 	unsigned int mode : 1;
 	unsigned int setmode : 1;
 };

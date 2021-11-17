@@ -78,17 +78,15 @@ void print(void) {
 		printf("%d: ", lnum);
 	if(flags.print) {
 		buf[buf_len - 2] = 0;
-		printf("%s%s", buf, flags.assigned ? "\n" : " -> ");
+		printf("%s -> ", buf);
 	}
-	if(!flags.assigned) {
-		switch(flags.mode) {
-			case SCIMODE:
-				printf("%.*f\n", ndecimals(outreg.r), outreg.r);
-				break;
-			case BINMODE:
-				printf("%lu\n", outreg.n);
-				break;
-		}
+	switch(flags.mode) {
+		case SCIMODE:
+			printf("%.*f\n", ndecimals(outreg.r), outreg.r);
+			break;
+		case BINMODE:
+			printf("%lu\n", outreg.n);
+			break;
 	}
 }
 
@@ -262,7 +260,7 @@ int main(int argc, char* argv[]) {
 	}
 
 end:
-	if(flags.accumulate & !flags.assigned) {
+	if(flags.accumulate) {
 		if(flags.print)
 			printf("total -> ");
 		switch(flags.mode) {

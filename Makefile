@@ -11,7 +11,7 @@ all:
 	${CC} ${CFLAGS} ${LIBS} ${SRC} -o mc
 
 debug:
-	${PARSEGEN} -Wconflicts-rr -Wcounterexamples parser.y
+	${PARSEGEN} -Wother -Wconflicts-rr -Wcounterexamples parser.y
 	${LEXGEN} lexer.l
 	${CC} -g ${CFLAGS} ${LIBS} ${SRC} -o debug
 
