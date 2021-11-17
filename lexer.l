@@ -18,6 +18,10 @@ extern struct Flags flags;
 		yylval.r = atof(yytext);
 		return REAL;
 }
+[0-9]\.[0-9]+e\+[0-9][0-9] {
+		yylval.r = atof(yytext);
+		return REAL;
+}
 [0-9]+ { 
 	switch(flags.mode) {
 		case SCIMODE:

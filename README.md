@@ -6,5 +6,4 @@ binary calculations.
 
 ## TODO
 
-- Output in binary, hex and octal
 - Improve error reports from parser

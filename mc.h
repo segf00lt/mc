@@ -14,6 +14,7 @@ struct Flags {
 	unsigned int last : 1;
 	unsigned int mode : 1;
 	unsigned int setmode : 1;
+	unsigned int format : 1;
 };
 
 union Num {

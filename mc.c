@@ -4,11 +4,13 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <math.h>
 #include "lex.yy.h"
 #include "y.tab.h"
 #include "mc.h"
 
 char* progname = NULL;
+char format = 0;
 
 struct Flags flags;
 
@@ -71,7 +73,20 @@ void errhandle(char* errstr) {
 	exit(1);
 }
 
+void binf(char str[64], unsigned long n) {
+	int index = (int)log2(n);
+	int j = 0;
+	for(int i = index; i >= 0; --i) {
+		unsigned long k = 1 << i;
+		str[j++] = (n & k ? 1 : 0) + '0';
+	}
+	while(j < 64)
+		str[j++] = 0;
+}
+
 void print(void) {
+	char binstr[64];
+
 	if(file_len > 1)
 		printf("%s: ", curhandle);
 	if(flags.linenumber & flags.readfile)
@@ -82,12 +97,60 @@ void print(void) {
 	}
 	switch(flags.mode) {
 		case SCIMODE:
+			goto sci_print;
+		case BINMODE:
+			goto bin_print;
+	}
+
+sci_print:
+	switch(format) {
+		default:
+			sprintf(errstr, "%s: unrecognized output format for scientific mode", progname);
+			errhandle(errstr);
+		case 0:
+		case 'd':
 			printf("%.*f\n", ndecimals(outreg.r), outreg.r);
 			break;
-		case BINMODE:
-			printf("%lu\n", outreg.n);
+		case 'e':
+			printf("%.12e\n", outreg.r);
+			break;
+		case 'E':
+			printf("%.12E\n", outreg.r);
 			break;
 	}
+	return;
+
+bin_print:
+	switch(format) {
+		default:
+			sprintf(errstr, "%s: unrecognized output format for binary mode", progname);
+			errhandle(errstr);
+		case 0:
+		case 'd':
+			printf("%lu\n", outreg.n);
+			break;
+		case 'b':
+			binf(binstr, outreg.n);
+			printf("0b%s\n", binstr);
+			break;
+		case 'B':
+			binf(binstr, outreg.n);
+			printf("0B%s\n", binstr);
+			break;
+		case 'o':
+			printf("0o%lo\n", outreg.n);
+			break;
+		case 'O':
+			printf("0O%lo\n", outreg.n);
+			break;
+		case 'x':
+			printf("0x%lx\n", outreg.n);
+			break;
+		case 'X':
+			printf("0X%lX\n", outreg.n);
+			break;
+	}
+	return;
 }
 
 void readfile(void) {
@@ -169,7 +232,7 @@ int main(int argc, char* argv[]) {
 	memset(&outreg, 0, sizeof(union Num));
 
 	int c;
-	while((c = getopt(argc, argv, "e:f:nbsphal")) != -1) {
+	while((c = getopt(argc, argv, "e:f:o:nbsphal")) != -1) {
 		switch(c) {
 			case 'h':
 				fprintf(stderr, "%s\n", USAGE);
@@ -199,6 +262,14 @@ int main(int argc, char* argv[]) {
 				flags.readfile = 1;
 				handle[handle_len++] = optarg;
 				file[file_len++] = fopen(optarg, "r");
+				break;
+			case 'o':
+				if(flags.format) {
+					sprintf(errstr, "%s: output format set multiple times", progname);
+					errhandle(errstr);
+				}
+				flags.format = 1;
+				format = optarg[0];
 				break;
 			case 's':
 				if(flags.setmode) {
