@@ -6,18 +6,23 @@
 #define YY_NO_INPUT
 #define YY_NO_UNPUT
 
+extern void yyerror(char* s);
 extern char errstr[64];
 extern struct Flags flags;
 %}
 
 %%
 [0-9]+\.[0-9]* {
-		yylval.r = atof(yytext);
-		return REAL;
+	if(flags.mode)
+		return UNDEFINED;
+	yylval.r = atof(yytext);
+	return REAL;
 }
 [0-9]\.[0-9]+e\+[0-9][0-9] {
-		yylval.r = atof(yytext);
-		return REAL;
+	if(flags.mode)
+		return UNDEFINED;
+	yylval.r = atof(yytext);
+	return REAL;
 }
 [0-9]+ { 
 	switch(flags.mode) {
@@ -30,19 +35,25 @@ extern struct Flags flags;
 	}
 }
 0[bB][01]+ {
-       yylval.n = strtoul(yytext + 2, NULL, 2);
-       return NATURAL;
+	if(!flags.mode)
+		return UNDEFINED;
+	yylval.n = strtoul(yytext + 2, NULL, 2);
+	return NATURAL;
 }
 0[oO][0-7]+ {
-       yylval.n = strtoul(yytext + 2, NULL, 8);
-       return NATURAL;
+	if(!flags.mode)
+		return UNDEFINED;
+	yylval.n = strtoul(yytext + 2, NULL, 8);
+	return NATURAL;
 }
 0[xX][0-9a-fA-F]+ {
+	if(!flags.mode)
+		return UNDEFINED;
 	yylval.n = strtoul(yytext, NULL, 16);
 	return NATURAL;
 }
-pi { yylval.r = M_PI; return PI; }
-e { yylval.r = M_E; return E; }
+pi { yylval.r = M_PI; if(flags.mode) return UNDEFINED; return PI; }
+e { yylval.r = M_E; if(flags.mode) return UNDEFINED; return E; }
 if { return IF; }
 else { return ELSE; }
 not { return LNOT; }

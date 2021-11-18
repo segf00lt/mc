@@ -1,7 +1,7 @@
 #ifndef MC_H
 #define MC_H
 
-#define USAGE "Usage: mc [-nalpbh] [-e EXPRESSION] [-f FILE] EXPRESSION ..."
+#define USAGE "Usage: mc [-nalpsbh] [-o [deEbBoOxX]] [-e EXPRESSION] [-f FILE] EXPRESSION ..."
 #define BINMODE 1
 #define SCIMODE 0
 
