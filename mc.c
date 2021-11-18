@@ -47,20 +47,6 @@ int isdir(char* handle) {
 	return S_ISDIR(s.st_mode);
 }
 
-/* number of decimals in double, 6 is max */
-unsigned int ndecimals(double d) {
-	unsigned int n = 0;
-	int i = d;
-	while((d - (double)i) != 0) {
-		if(n == 12)
-			break;
-		d *= 10;
-		i = d;
-		++n;
-	}
-	return n;
-}
-
 void cleanup(void) {
 	for(int i = 0; i < file_len; ++i)
 		fclose(file[i]);
@@ -99,37 +85,38 @@ void print(void) {
 		case 'd':
 			switch(flags.mode) {
 				case SCIMODE:
-					printf("%.*f\n", ndecimals(outreg.r), outreg.r);
+					printf("%.*f\n", (outreg.r - floor(outreg.r)) == 0 ? 0 : 6, outreg.r);
+					return;
 				case BINMODE:
 					printf("%lu\n", outreg.n);
+					return;
 			}
-			return;
 		case 'e':
-			printf("%.12e\n", outreg.r);
-			break;
+			printf("%.6e\n", outreg.r);
+			return;
 		case 'E':
-			printf("%.12E\n", outreg.r);
-			break;
+			printf("%.6E\n", outreg.r);
+			return;
 		case 'b':
 			binf(binstr, outreg.n);
 			printf("0b%s\n", binstr);
-			break;
+			return;
 		case 'B':
 			binf(binstr, outreg.n);
 			printf("0B%s\n", binstr);
-			break;
+			return;
 		case 'o':
 			printf("0o%lo\n", outreg.n);
-			break;
+			return;
 		case 'O':
 			printf("0O%lo\n", outreg.n);
-			break;
+			return;
 		case 'x':
 			printf("0x%lx\n", outreg.n);
-			break;
+			return;
 		case 'X':
 			printf("0X%lX\n", outreg.n);
-			break;
+			return;
 	}
 }
 
@@ -357,7 +344,7 @@ end:
 			printf("total -> ");
 		switch(flags.mode) {
 			case SCIMODE:
-				printf("%.*f\n", ndecimals(acc.r), acc.r);
+				printf("%.*f\n", (acc.r - floor(acc.r)) == 0 ? 0 : 1, acc.r);
 				break;
 			case BINMODE:
 				printf("%lu\n", acc.n);

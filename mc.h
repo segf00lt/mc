@@ -24,7 +24,6 @@ union Num {
 
 int isreg(char* handle);
 int isdir(char* handle);
-unsigned int ndecimals(double d);
 void cleanup(void);
 void errhandle(char* errstr);
 void print(void);
