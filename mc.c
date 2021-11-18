@@ -10,7 +10,7 @@
 #include "mc.h"
 
 char* progname = NULL;
-char format = 0;
+char format = 'd';
 
 struct Flags flags;
 
@@ -95,39 +95,20 @@ void print(void) {
 		buf[buf_len - 2] = 0;
 		printf("%s -> ", buf);
 	}
-	switch(flags.mode) {
-		case SCIMODE:
-			goto sci_print;
-		case BINMODE:
-			goto bin_print;
-	}
-
-sci_print:
 	switch(format) {
-		default:
-			sprintf(errstr, "%s: unrecognized output format for scientific mode", progname);
-			errhandle(errstr);
-		case 0:
 		case 'd':
-			printf("%.*f\n", ndecimals(outreg.r), outreg.r);
-			break;
+			switch(flags.mode) {
+				case SCIMODE:
+					printf("%.*f\n", ndecimals(outreg.r), outreg.r);
+				case BINMODE:
+					printf("%lu\n", outreg.n);
+			}
+			return;
 		case 'e':
 			printf("%.12e\n", outreg.r);
 			break;
 		case 'E':
 			printf("%.12E\n", outreg.r);
-			break;
-	}
-	return;
-
-bin_print:
-	switch(format) {
-		default:
-			sprintf(errstr, "%s: unrecognized output format for binary mode", progname);
-			errhandle(errstr);
-		case 0:
-		case 'd':
-			printf("%lu\n", outreg.n);
 			break;
 		case 'b':
 			binf(binstr, outreg.n);
@@ -150,7 +131,6 @@ bin_print:
 			printf("0X%lX\n", outreg.n);
 			break;
 	}
-	return;
 }
 
 void readfile(void) {
@@ -269,7 +249,22 @@ int main(int argc, char* argv[]) {
 					errhandle(errstr);
 				}
 				flags.format = 1;
-				format = optarg[0];
+				switch(optarg[0]) {
+					case 'd':
+					case 'e':
+					case 'E':
+					case 'b':
+					case 'B':
+					case 'o':
+					case 'O':
+					case 'x':
+					case 'X':
+						format = optarg[0];
+						break;
+					default:
+						sprintf(errstr, "%s: unrecognized output format", progname);
+						errhandle(errstr);
+				}
 				break;
 			case 's':
 				if(flags.setmode) {
@@ -320,6 +315,32 @@ int main(int argc, char* argv[]) {
 		file[file_len++] = stdin;
 		readfile();
 		goto end;
+	}
+
+	if(flags.mode == SCIMODE){
+		switch(format) {
+			case 'd':
+			case 'e':
+			case 'E':
+				break;
+			default:
+				sprintf(errstr, "%s: unrecognized output format for scientific mode", progname);
+				errhandle(errstr);
+		}
+	} else {
+		switch(format) {
+			case 'd':
+			case 'b':
+			case 'B':
+			case 'o':
+			case 'O':
+			case 'x':
+			case 'X':
+				break;
+			default:
+				sprintf(errstr, "%s: unrecognized output format for binary mode", progname);
+				errhandle(errstr);
+		}
 	}
 
 	if(flags.readarg) {

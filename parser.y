@@ -38,7 +38,7 @@ union Num chaincompare(void);
 %token LT GT LTEQ GTEQ EQ NEQ
 %token AND OR NOT XOR LSHIFT RSHIFT
 %token ADD SUB MUL DIV MOD POW FACT OPAREN CPAREN
-%token SIN COS TAN ASIN ACOS ATAN ROOT LN ABS LOG2 LOG
+%token SIN COS TAN ASIN ACOS ATAN ROOT LN ABS LOG LOG2 LOG10
 %left IF ELSE
 %left LOR
 %left LAND
@@ -52,7 +52,7 @@ union Num chaincompare(void);
 %left MUL DIV MOD
 %left LNOT NOT
 %left POW
-%left SIN COS TAN ASIN ACOS ATAN ROOT LN ABS LOG
+%left SIN COS TAN ASIN ACOS ATAN ROOT LN ABS LOG LOG2 LOG10
 %right FACT
 %left OPAREN CPAREN
 %type <r> r_conditional r_logic r_compare r_expr r_primary r_builtin r_paren
@@ -114,6 +114,10 @@ r_builtin: SIN r_paren { $$ = sin($2); }
          | ABS r_paren { $$ = fabs($2); }
          | LOG2 r_paren { $$ = log2($2); }
          | LOG r_paren { $$ = log10($2); }
+	 | LOG REAL r_paren { $$ = log($3) / log($2); }
+	 | LOG PI r_paren { $$ = log($3) / log($2); }
+	 | LOG E r_paren { $$ = log($3) / log($2); }
+	 | LOG r_paren r_paren { $$ = log($3) / log($2); }
 	 ;
 r_paren: OPAREN r_conditional CPAREN { $$ = $2; }
        ;
@@ -155,8 +159,8 @@ n_primary: NATURAL { $$ = $1; }
 n_builtin: ROOT n_paren { $$ = (unsigned long)sqrtl((long double)$2); }
          | ROOT NATURAL n_paren { $$ = (unsigned long)powl((long double)$3, 1.0 / (long double)$2); }
 	 | ROOT n_paren n_paren { $$ = (unsigned long)powl((long double)$3, 1.0 / (long double)$2); }
-         | LOG2 n_paren { $$ = (unsigned long)log2l((long double)$2); }
-         | LOG n_paren { $$ = (unsigned long)log10l((long double)$2); }
+         | LOG n_paren { $$ = (unsigned long)log2l((long double)$2); }
+         | LOG10 n_paren { $$ = (unsigned long)log10l((long double)$2); }
 	 ;
 n_paren: OPAREN n_conditional CPAREN { $$ = $2; }
        ;

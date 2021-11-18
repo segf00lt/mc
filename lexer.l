@@ -80,6 +80,7 @@ ln { return LN; }
 abs { return ABS; }
 log { return LOG; }
 log2 { return LOG2; }
+log10 { return LOG10; }
 [ \t] ;
 \n { return END; }
 . { return UNDEFINED; }
