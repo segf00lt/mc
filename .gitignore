@@ -1,3 +1,6 @@
+mc.1.pdf
+mc.1.txt
+mantest.sh
 *.py
 grammar
 tags
@@ -9,3 +12,4 @@ lex.yy.*
 y.tab.*
 a.out
 save.vim
+mantest.sh

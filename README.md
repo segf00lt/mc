@@ -7,3 +7,5 @@ binary calculations.
 ## TODO
 
 - Improve error reports from parser
+- Write manpage
+- Finish Makefile (add install, uninstall and manpage)

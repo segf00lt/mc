@@ -52,7 +52,7 @@ union Num chaincompare(void);
 %left MUL DIV MOD
 %left LNOT NOT
 %left POW
-%left SIN COS TAN ASIN ACOS ATAN ROOT LN ABS LOG LOG2 LOG10
+%left SIN COS TAN ASIN ACOS ATAN ABS ROOT LN LOG LOG2 LOG10
 %right FACT
 %left OPAREN CPAREN
 %type <r> r_conditional r_logic r_compare r_expr r_primary r_builtin r_paren
@@ -93,7 +93,6 @@ r_expr: r_primary { $$ = $1; }
       }
       ;
 r_primary: REAL { $$ = $1; }
-	 | ADD r_primary { $$ = $2; }
 	 | SUB r_primary { $$ = -$2; }
 	 | LNOT r_primary { $$ = !$2; }
          | PI { $$ = $1; }
@@ -107,13 +106,13 @@ r_builtin: SIN r_paren { $$ = sin($2); }
          | ASIN r_paren { $$ = asin($2); }
          | ACOS r_paren { $$ = acos($2); }
          | ATAN r_paren { $$ = atan($2); }
+         | ABS r_paren { $$ = fabs($2); }
          | ROOT r_paren { $$ = sqrt($2); }
 	 | ROOT REAL r_paren { $$ = pow($3, 1 / $2); }
          | ROOT r_paren r_paren { $$ = pow($3, 1 / $2); }
          | LN r_paren { $$ = log($2); }
-         | ABS r_paren { $$ = fabs($2); }
-         | LOG2 r_paren { $$ = log2($2); }
          | LOG r_paren { $$ = log10($2); }
+         | LOG2 r_paren { $$ = log2($2); }
 	 | LOG REAL r_paren { $$ = log($3) / log($2); }
 	 | LOG PI r_paren { $$ = log($3) / log($2); }
 	 | LOG E r_paren { $$ = log($3) / log($2); }

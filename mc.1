@@ -1,0 +1,472 @@
+.TH MC 1 mc\-0.1
+.SH NAME
+.B mc
+\- perform logical, arithmetic and bitwise operations
+.SH SYNOPSIS
+.B mc
+[
+.B \-hnpsbal
+]
+[
+.B \-o
+.RB [ deEbBoOxX ]
+]
+[
+.B \-e
+.I expression
+]
+[
+.B \-f
+.I file
+]
+[
+.IR expression ...
+]
+.SH DESCRIPTION
+.B mc
+is a expression evaluator and calculator,
+capable of evaluating logical operations
+.RB ( and ,
+.BR or ,
+.BR if-else ),
+chained comparison statements
+.RB ( > ,
+.BR < ,
+.BR >= ,
+.BR <= ,
+.BR == ,
+.BR != ),
+and practically all arithmetic and bitwise operations.
+.P
+An apt and concise description of
+.BR mc ,
+would be to say it is a program which exposes the numerical
+and logical capabilities of something like
+.I C
+or
+.I python
+to the shell.
+.SH OPTIONS
+.SS Program information
+.TP
+.B \-h
+print help message.
+.SS Input\-output control and formatting
+.TP
+.B \-n
+number lines of output with number of corresponding input expression.
+.TP
+.B \-p
+print corresponding input expression of output.
+.TP
+.B \-s
+scientific calculator mode.
+.TP
+.B \-b
+programmers calculator mode.
+.TP
+.B \-a
+accumulate result of each expression.
+.TP
+.B \-l
+only print final result (option only has effect when used with
+.BR \-a )
+.SS Input sources
+.TP
+.BI \-e " expression"
+takes a quoted expression to be evaluated.
+.TP
+.BI \-f " file"
+takes a file whose lines contain expressions to be evaluated.
+.SH EXPRESSION SYNTAX
+.B mc
+has two modes of operation:
+scientific calculator and programmers calculator.
+Both modes have access to the logical operators and all the
+common binary and unary arithmetic operators.
+However they differ in terms of
+their numerical types and constants, builtin functions, input and output
+formats and some special operators.
+.PP
+Syntax common to both is listed under the section
+.I Common
+while syntax specific to the scientific and programmers mode are
+listed under the sections
+.I Scientific
+and
+.I Programmers
+respectively.
+.SS Common
+.PP
+\-
+.I expression
+.B if
+.I expression
+.B else
+.I expression
+.RS
+Returns the first
+.I expression
+if the second
+.I expression
+is non zero,
+otherwise returns the third
+.IR expression .
+.PP
+Note that
+.BR if-else 's
+can only be nested if the
+nested
+.B if-else
+is
+parenthesized.
+.RE
+.PP
+\-
+.I expression
+.B and
+.I expression
+.RS
+Returns 1 if both
+.IR expression s
+are true,
+otherwise returns 0.
+.RE
+.PP
+\-
+.I expression
+.B or
+.I expression
+.RS
+Returns 1 if either or both
+.IR expression s
+are true,
+otherwise returns 0.
+.RE
+.PP
+\-
+.I expression
+.B <
+.I expression
+.RS
+Returns 1 if the first
+.I expression
+is less than the second,
+otherwise returns 0.
+.RE
+.PP
+\-
+.I expression
+.B >
+.I expression
+.RS
+Returns 1 if the first
+.I expression
+is greater than the second,
+otherwise returns 0.
+.RE
+.PP
+\-
+.I expression
+.B <=
+.I expression
+.RS
+Returns 1 if the first
+.I expression
+is less than or equal to the second,
+otherwise returns 0.
+.RE
+.PP
+\-
+.I expression
+.B >=
+.I expression
+.RS
+Returns 1 if the first
+.I expression
+is greater than or equal to the second,
+otherwise returns 0.
+.RE
+.PP
+\-
+.I expression
+.B ==
+.I expression
+.RS
+Returns 1 if the first
+.I expression
+is equal to the second,
+otherwise returns 0.
+.RE
+.PP
+\-
+.I expression
+.B !=
+.I expression
+.RS
+Returns 1 if the first
+.I expression
+is not equal to the second,
+otherwise returns 0.
+.RE
+.PP
+\-
+.I expression
+.B +
+.I expression
+.RS
+Returns sum of both
+.IR expression s.
+.RE
+.PP
+\-
+.I expression
+.B \-
+.I expression
+.RS
+Returns difference of both
+.IR expression s.
+.RE
+.PP
+\-
+.I expression
+.B *
+.I expression
+.RS
+Returns product of both
+.IR expression s.
+.RE
+.PP
+\-
+.I expression
+.B /
+.I expression
+.RS
+Returns division of both
+.IR expression s.
+.RE
+.PP
+\-
+.I expression
+.B %
+.I expression
+.RS
+Returns remainder of the first
+.I expression
+divided by the second.
+.RE
+.PP
+\-
+.I expression
+.B **
+.I expression
+.RS
+Returns the first
+.I expression
+to the power of the second.
+.RE
+.PP
+\-
+.B \-
+.I expression
+.RS
+Returns unary minus of
+.IR expression .
+.RE
+.PP
+\-
+.B not
+.I expression
+.RS
+Returns 0 if
+.I expression
+is 1,
+and 1 if
+.I expression
+is 0.
+.RE
+.SS Scientific
+.PP
+\-
+.I expression
+.B !
+Returns the factorial of
+.IR expression .
+.PP
+\-
+.B pi
+Returns the constant
+.IR pi .
+.PP
+\-
+.B e
+Returns the constant
+.IR e .
+.PP
+\-
+.B sin (
+.I expression
+.B )
+.RS
+Returns the sine of
+.IR expression .
+.RE
+.PP
+\-
+.B cos (
+.I expression
+.B )
+.RS
+Returns the cosine of
+.IR expression .
+.RE
+.PP
+\-
+.B tan (
+.I expression
+.B )
+.RS
+Returns the tangent of
+.IR expression .
+.RE
+.PP
+\-
+.B asin (
+.I expression
+.B )
+.RS
+Returns the arc sine of
+.IR expression .
+.RE
+.PP
+\-
+.B acos (
+.I expression
+.B )
+.RS
+Returns the arc cosine of
+.IR expression .
+.RE
+.PP
+\-
+.B atan (
+.I expression
+.B )
+.RS
+Returns the arc tangent of
+.IR expression .
+.RE
+.PP
+\-
+.B abs (
+.I expression
+.B )
+.RS
+Returns the absolute value of
+.IR expression .
+.RE
+.PP
+\-
+.B root (
+.I expression
+.B )
+.RS
+Returns the square root of
+.IR expression .
+.RE
+.PP
+\-
+.B root
+.I n
+.B (
+.I expression
+.B )
+.RS
+Returns the nth root of
+.IR expression ,
+.I n
+being a real number including one
+of the predefined constants
+.B pi
+or
+.BR e.
+.RE
+.PP
+\-
+.B root
+.B (
+.I expression
+.B )
+.B (
+.I expression
+.B )
+.RS
+Returns the nth root of the second
+.IR expression ,
+.I n
+being a real number or predefined constant
+resulting from the first
+.IR expression .
+.RE
+.PP
+\-
+.B ln (
+.I expression
+.B )
+.RS
+Returns log base
+.I e
+of
+.IR expression .
+.RE
+.PP
+\-
+.B log (
+.I expression
+.B )
+.RS
+Returns log base 10 of
+.IR expression .
+.RE
+.PP
+\-
+.B log2 (
+.I expression
+.B )
+.RS
+Returns log base 2 of
+.IR expression .
+.RE
+.PP
+\-
+.B log
+.I n
+.B (
+.I expression
+.B )
+.RS
+Returns log base
+.I n
+of
+.IR expression ,
+.I n
+being a real number of predefined constant.
+.RE
+.PP
+\-
+.B log
+.B (
+.I expression
+.B )
+.B (
+.I expression
+.B )
+.RS
+Returns log base
+.I n
+of the second
+.IR expression ,
+.I n
+being a real number of predefined constant
+resulting from the first expression
+.RE
