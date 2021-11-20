@@ -285,6 +285,15 @@ and 1 if
 .I expression
 is 0.
 .RE
+.PP
+\-
+.B root (
+.I expression
+.B )
+.RS
+Returns the square root of
+.IR expression .
+.RE
 .SS Scientific
 .PP
 \-
@@ -367,22 +376,15 @@ Returns the absolute value of
 .RE
 .PP
 \-
-.B root (
-.I expression
-.B )
-.RS
-Returns the square root of
-.IR expression .
-.RE
-.PP
-\-
 .B root
 .I n
 .B (
 .I expression
 .B )
 .RS
-Returns the nth root of
+Returns the
+.IR n th
+root of
 .IR expression ,
 .I n
 being a real number including one
@@ -401,7 +403,9 @@ or
 .I expression
 .B )
 .RS
-Returns the nth root of the second
+Returns the
+.IR n th
+root of the second
 .IR expression ,
 .I n
 being a real number or predefined constant
@@ -469,4 +473,113 @@ of the second
 .I n
 being a real number of predefined constant
 resulting from the first expression
+.RE
+.SS Programmers
+.PP
+\-
+.I expression
+.B |
+.I expression
+.RS
+Returns bitwise or of both
+.IR expression s.
+.RE
+.PP
+\-
+.I expression
+.B ^
+.I expression
+.RS
+Returns bitwise exclusive-or of both
+.IR expression s.
+.RE
+.PP
+\-
+.I expression
+.B &
+.I expression
+.RS
+Returns bitwise and of both
+.IR expression s.
+.RE
+.PP
+\-
+.I expression
+.B <<
+.I expression
+.RS
+Returns left bitwise shift of the first
+.I expression
+by the second.
+.RE
+.PP
+\-
+.I expression
+.B >>
+.I expression
+.RS
+Returns right bitwise shift of the first
+.I expression
+by the second.
+.RE
+.PP
+\-
+.B ~
+.I expression
+.RS
+Returns the bitwise not of
+.IR expression .
+.RE
+.PP
+\-
+.B root
+.I n
+.B (
+.I expression
+.B )
+.RS
+Returns the
+.IR n th
+root of
+.IR expression,
+.I n
+being a natural number.
+.RE
+.PP
+\-
+.B root
+.B (
+.I expression
+.B )
+.B (
+.I expression
+.B )
+.RS
+Returns the
+.IR n th
+root of
+.IR expression,
+.I n
+being a natural number resulting from
+.IR expression .
+.RE
+.PP
+\-
+.B log
+.B (
+.I expression
+.B )
+.RS
+Returns log base 2 of
+.IR expression .
+.RE
+.PP
+\-
+.B log10
+.B (
+.I expression
+.B )
+.RS
+Returns log base 10 of
+.IR expression .
 .RE
