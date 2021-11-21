@@ -7,7 +7,7 @@ PARSEGEN = yacc -d
 LEXGEN = flex -X --header-file=lex.yy.h
 
 PREFIX = /usr/local
-MANPREFIX = $(PREFIX)/share/man
+MANPREFIX = ${PREFIX}/share/man
 
 all:
 	${PARSEGEN} parser.y
