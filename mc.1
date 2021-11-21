@@ -1,4 +1,4 @@
-.TH MC 1 mc\-0.1
+.TH MC 1 mc\-VERSION
 .SH NAME
 .B mc
 \- perform logical, arithmetic and bitwise operations
@@ -37,15 +37,6 @@ chained comparison statements
 .BR == ,
 .BR != ),
 and practically all arithmetic and bitwise operations.
-.P
-An apt and concise description of
-.BR mc ,
-would be to say it is a program which exposes the numerical
-and logical capabilities of something like
-.I C
-or
-.I python
-to the shell.
 .SH OPTIONS
 .SS Program information
 .TP
@@ -71,6 +62,14 @@ accumulate result of each expression.
 .B \-l
 only print final result (option only has effect when used with
 .BR \-a )
+.TP
+.BR \-o " [" deEbBoOxX ]
+specify output format as:
+decimal,
+[-]m.dddddd[eE]\[+-]xx,
+binary with leading 0[bB],
+octal with leading 0[oO],
+hexadecimal with leading 0[xX].
 .SS Input sources
 .TP
 .BI \-e " expression"
@@ -78,16 +77,23 @@ takes a quoted expression to be evaluated.
 .TP
 .BI \-f " file"
 takes a file whose lines contain expressions to be evaluated.
+.SH NUMERICAL INPUT/OUTPUT FORMATS
+.B mc
+can read and output numbers in formats other than simple decimal,
+depending on the mode flag that is set.
+.PP
+.IR "Scientific calculator " mode
+can receive and output numbers in the form
+[-]m.dddddd[eE]\[+-]xx.
+.PP
+.IR "Programmers calculator " mode
+can also receive and output numbers as:
+binary with leading 0[bB],
+octal with leading 0[oO] and hexadecimal with leading 0[xX].
 .SH EXPRESSION SYNTAX
 .B mc
 has two modes of operation:
 scientific calculator and programmers calculator.
-Both modes have access to the logical operators and all the
-common binary and unary arithmetic operators.
-However they differ in terms of
-their numerical types and constants, builtin functions, input and output
-formats and some special operators.
-.PP
 Syntax common to both is listed under the section
 .I Common
 while syntax specific to the scientific and programmers mode are
@@ -297,12 +303,6 @@ Returns the square root of
 .SS Scientific
 .PP
 \-
-.I expression
-.B !
-Returns the factorial of
-.IR expression .
-.PP
-\-
 .B pi
 Returns the constant
 .IR pi .
@@ -311,6 +311,15 @@ Returns the constant
 .B e
 Returns the constant
 .IR e .
+.PP
+\-
+.I expression
+.B !
+.RS
+Returns the factorial of
+.IR expression .
+(Note that '!' may need do be escaped with '\\')
+.RE
 .PP
 \-
 .B sin (
@@ -395,11 +404,9 @@ or
 .RE
 .PP
 \-
-.B root
-.B (
+.B root (
 .I expression
-.B )
-.B (
+.B ) (
 .I expression
 .B )
 .RS
@@ -458,11 +465,9 @@ being a real number of predefined constant.
 .RE
 .PP
 \-
-.B log
-.B (
+.B log (
 .I expression
-.B )
-.B (
+.B ) (
 .I expression
 .B )
 .RS
@@ -547,11 +552,9 @@ being a natural number.
 .RE
 .PP
 \-
-.B root
-.B (
+.B root (
 .I expression
-.B )
-.B (
+.B ) (
 .I expression
 .B )
 .RS
@@ -565,8 +568,7 @@ being a natural number resulting from
 .RE
 .PP
 \-
-.B log
-.B (
+.B log (
 .I expression
 .B )
 .RS
@@ -575,8 +577,7 @@ Returns log base 2 of
 .RE
 .PP
 \-
-.B log10
-.B (
+.B log10 (
 .I expression
 .B )
 .RS
