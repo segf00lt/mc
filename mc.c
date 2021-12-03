@@ -29,6 +29,7 @@ int buf_len = 0;
 
 union Num outreg;
 union Num acc;
+unsigned int logicout = 0;
 
 /* line number */
 int lnum = 1;
@@ -59,11 +60,11 @@ void errhandle(char* errstr) {
 	exit(1);
 }
 
-void binf(char str[64], unsigned long n) {
-	int index = (int)log2(n);
+void binf(char str[64], unsigned int n) {
+	int index = n > 0 ? (int)log2(n) : 0;
 	int j = 0;
 	for(int i = index; i >= 0; --i) {
-		unsigned long k = 1 << i;
+		unsigned int k = 1 << i;
 		str[j++] = (n & k ? 1 : 0) + '0';
 	}
 	while(j < 64)
@@ -344,7 +345,7 @@ end:
 			printf("total -> ");
 		switch(flags.mode) {
 			case SCIMODE:
-				printf("%.*f\n", (acc.r - floor(acc.r)) == 0 ? 0 : 1, acc.r);
+				printf("%.*f\n", (acc.r - floor(acc.r)) == 0 ? 0 : 6, acc.r);
 				break;
 			case BINMODE:
 				printf("%lu\n", acc.n);
@@ -352,5 +353,5 @@ end:
 		}
 	}
 	cleanup();
-	return 0;
+	return !logicout;
 }

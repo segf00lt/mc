@@ -7,6 +7,7 @@
 extern char* progname;
 extern union Num outreg;
 extern union Num acc;
+extern unsigned int logicout;
 extern struct Flags flags;
 
 int yylex(void);
@@ -24,7 +25,7 @@ union Num chaincompare(void);
 
 %union {
 	double r;
-	unsigned long n;
+	unsigned int n;
 }
 
 %start start
@@ -37,7 +38,7 @@ union Num chaincompare(void);
 %token LAND LOR
 %token LT GT LTEQ GTEQ EQ NEQ
 %token AND OR NOT XOR LSHIFT RSHIFT
-%token ADD SUB MUL DIV MOD POW FACT OPAREN CPAREN
+%token ADD SUB MUL DIV MOD POW LNOT OPAREN CPAREN
 %token SIN COS TAN ASIN ACOS ATAN ROOT LN ABS LOG LOG2 LOG10
 %left IF ELSE
 %left LOR
@@ -124,8 +125,8 @@ n_conditional: n_logic { $$ = $1; }
 	     | n_logic IF n_logic ELSE n_logic { $$ = $3 ? $1 : $5; }
 	     ;
 n_logic: n_compare { $$ = chaincompare().n; }
-       | n_logic LAND n_logic { $$ = $1 && $3; }
-       | n_logic LOR n_logic { $$ = $1 || $3; }
+       | n_logic LAND n_logic { $$ = $1 && $3; logicout = $1 && $3; }
+       | n_logic LOR n_logic { $$ = $1 || $3; logicout = $1 || $3; }
        ;
 n_compare: n_expr { v[i++].n = $1; }
 	 | n_compare LT n_compare { c[j++] = LT; }
@@ -142,11 +143,11 @@ n_expr: n_primary { $$ = $1; }
       | n_expr LSHIFT n_expr { $$ = $1 << $3; }
       | n_expr RSHIFT n_expr { $$ = $1 >> $3; }
       | n_expr ADD n_expr { $$ = $1 + $3; }
-      | n_expr SUB n_expr { $$ = ((long)($1 - $3) > 0) ? ($1 - $3) : 0; }
+      | n_expr SUB n_expr { $$ = ((int)($1 - $3) > 0) ? ($1 - $3) : 0; }
       | n_expr MUL n_expr { $$ = $1 * $3; }
       | n_expr DIV n_expr { $$ = $1 / $3; }
       | n_expr MOD n_expr { $$ = $1 % $3; }
-      | n_expr POW n_expr { $$ = (unsigned long)powl($1, $3); }
+      | n_expr POW n_expr { $$ = (unsigned int)pow($1, $3); }
       ;
 n_primary: NATURAL { $$ = $1; }
 	 | SUB n_primary { $$ = -$2; }
@@ -155,11 +156,11 @@ n_primary: NATURAL { $$ = $1; }
 	 | n_builtin { $$ = $1; }
 	 | n_paren { $$ = $1; }
 	 ;
-n_builtin: ROOT n_paren { $$ = (unsigned long)sqrtl((long double)$2); }
-         | ROOT NATURAL n_paren { $$ = (unsigned long)powl((long double)$3, 1.0 / (long double)$2); }
-	 | ROOT n_paren n_paren { $$ = (unsigned long)powl((long double)$3, 1.0 / (long double)$2); }
-         | LOG n_paren { $$ = (unsigned long)log2l((long double)$2); }
-         | LOG10 n_paren { $$ = (unsigned long)log10l((long double)$2); }
+n_builtin: ROOT n_paren { $$ = (unsigned int)sqrt((double)$2); }
+         | ROOT NATURAL n_paren { $$ = (unsigned int)pow((double)$3, 1.0 / (double)$2); }
+	 | ROOT n_paren n_paren { $$ = (unsigned int)pow((double)$3, 1.0 / (double)$2); }
+         | LOG n_paren { $$ = (unsigned int)log2((double)$2); }
+         | LOG10 n_paren { $$ = (unsigned int)log10((double)$2); }
 	 ;
 n_paren: OPAREN n_conditional CPAREN { $$ = $2; }
        ;
@@ -175,6 +176,7 @@ double factorial(double n) {
 union Num chaincompare(void) {
 	if(i == 1) {
 		i = j = 0;
+		logicout = 2;
 		return v[0];
 	}
 
@@ -243,6 +245,7 @@ n_comp:
 		out &= op;
 	}
 	i = j = 0;
+	logicout = !out;
 	ret.n = out;
 	return ret;
 }

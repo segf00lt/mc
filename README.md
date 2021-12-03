@@ -1,4 +1,5 @@
 # mc
+
 `mc` is a command line tool loosely inspired by the core utilities `expr` and `bc`,
 and designed to enhance the numerical capabilities of the shell.
 
@@ -13,6 +14,7 @@ and the full specification of grammar and terminal symbols can be found in
 `parser.y` and `lexer.l` respectively.
 
 ## Installation
+
 First make sure `yacc` and `flex` are installed on your system,
 then run the following command line.
 

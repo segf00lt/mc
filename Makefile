@@ -14,6 +14,11 @@ all:
 	${LEXGEN} lexer.l
 	${CC} ${CFLAGS} ${LIBS} ${SRC} -o mc
 
+debug:
+	${PARSEGEN} -Wother -Wconflicts-rr -Wcounterexamples parser.y
+	${LEXGEN} lexer.l
+	${CC} -g ${CFLAGS} ${LIBS} ${SRC} -o debug
+
 install: all
 	mkdir -p ${PREFIX}/bin
 	cp -f mc ${PREFIX}/bin
@@ -24,11 +29,6 @@ install: all
 
 uninstall:
 	rm -f ${PREFIX}/bin/mc ${MANPREFIX}/man1/mc.1
-
-debug:
-	${PARSEGEN} -Wother -Wconflicts-rr -Wcounterexamples parser.y
-	${LEXGEN} lexer.l
-	${CC} -g ${CFLAGS} ${LIBS} ${SRC} -o debug
 
 clean:
 	rm -f lex.yy.c lex.yy.h y.tab.c y.tab.h debug mc
