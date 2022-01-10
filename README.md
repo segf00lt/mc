@@ -1,22 +1,14 @@
 # mc
 
-`mc` is a command line tool loosely inspired by the core utilities `expr` and `bc`,
-and designed to enhance the numerical capabilities of the shell.
-
-Unlike `bc`, `mc` is not a language. The user cannot define variables
-or functions, create loops or do any kind of control flow (beyond a ternary conditional
-operator). The rational behind this choice is that the shell already has these capabilities,
-and therefor they need not be duplicated in a program designed to deal with
-numbers and simple logic.
-
-A rough but comprehensive description of `mc`'s syntax is available in `mc.1`,
-and the full specification of grammar and terminal symbols can be found in
-`parser.y` and `lexer.l` respectively.
+`mc` is an integer calculator, capable of performing arithmetic, bitwise, and
+logical operations, primarily designed to grant the user the ability to do
+bitwise operations in the shell.
 
 ## Installation
 
-First make sure `yacc` and `flex` are installed on your system,
-then run the following command line.
+The only dependencies are `yacc` and `flex`.
+
+To install run:
 
 `git clone https://github.com/segf00lt/mc && cd mc/ && sudo make install`
 

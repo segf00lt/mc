@@ -1,42 +1,29 @@
 .TH MC 1 mc\-VERSION
 .SH NAME
 .B mc
-\- perform logical, arithmetic and bitwise operations
+\- perform arithmetic, bitwise and logical operations
 .SH SYNOPSIS
 .B mc
 [
-.B \-hnpsbal
+.B \-hnpal
 ]
 [
 .B \-o
-.RB [ deEbBoOxX ]
+.RB [ dbBoOxX ]
 ]
 [
 .B \-e
 .I expression
 ]
 [
-.B \-f
-.I file
-]
-[
 .IR expression ...
 ]
 .SH DESCRIPTION
 .B mc
-is a expression evaluator and calculator,
-capable of evaluating logical operations
-.RB ( and ,
-.BR or ,
-.BR if-else ),
-chained comparison statements
-.RB ( > ,
-.BR < ,
-.BR >= ,
-.BR <= ,
-.BR == ,
-.BR != ),
-and practically all arithmetic and bitwise operations.
+is an integer calculator,
+capable of performing arithmetic,
+bitwise,
+and logical operations.
 .SH OPTIONS
 .SS Program information
 .TP
@@ -50,12 +37,6 @@ number lines of output with number of corresponding input expression.
 .B \-p
 print corresponding input expression of output.
 .TP
-.B \-s
-scientific calculator mode.
-.TP
-.B \-b
-programmers calculator mode.
-.TP
 .B \-a
 accumulate result of each expression.
 .TP
@@ -63,91 +44,160 @@ accumulate result of each expression.
 only print final result (option only has effect when used with
 .BR \-a )
 .TP
-.BR \-o " [" deEbBoOxX ]
+.BR \-o " [" dbBoOxX ]
 specify output format as:
 decimal,
-[-]m.dddddd[eE]\[+-]xx,
 binary with leading 0[bB],
 octal with leading 0[oO],
 hexadecimal with leading 0[xX].
+.IP
+The decimal output is signed,
+all other bases are unsigned.
 .SS Input sources
 .TP
-.BI \-e " expression"
+.RB [ \-e ] " expression"
 takes a quoted expression to be evaluated.
-.TP
-.BI \-f " file"
-takes a file whose lines contain expressions to be evaluated.
+.IP
+If no expressions are given then mc reads from
+stdin.
 .SH NUMERICAL INPUT/OUTPUT FORMATS
 .B mc
 can read and output numbers in formats other than simple decimal,
-depending on the mode flag that is set.
-.PP
-.IR "Scientific calculator " mode
-can receive and output numbers in the form
-[-]m.dddddd[eE]\[+-]xx.
-.PP
-.IR "Programmers calculator " mode
-can also receive and output numbers as:
-binary with leading 0[bB],
+such as binary with leading 0[bB],
 octal with leading 0[oO] and hexadecimal with leading 0[xX].
 .SH EXPRESSION SYNTAX
+The syntax used by
 .B mc
-has two modes of operation:
-scientific calculator and programmers calculator.
-Syntax common to both is listed under the section
-.I Common
-while syntax specific to the scientific and programmers mode are
-listed under the sections
-.I Scientific
-and
-.I Programmers
-respectively.
-.SS Common
+is listed below in order of precedence,
+highest to lowest.
+.SS Arithmetic and Bitwise operators
+.PP
+\-
+.B \-
+.I expression
+.RS
+Returns unary minus of
+.IR expression .
+.RE
+.PP
+\-
+.B ~
+.I expression
+.RS
+Returns the bitwise not of
+.IR expression .
+.RE
 .PP
 \-
 .I expression
-.B if
+.B +
 .I expression
-.B else
+.RS
+Returns sum of both
+.IR expression s.
+.RE
+.PP
+\-
+.I expression
+.B \-
+.I expression
+.RS
+Returns difference of both
+.IR expression s.
+.RE
+.PP
+\-
+.I expression
+.B *
+.I expression
+.RS
+Returns product of both
+.IR expression s.
+.RE
+.PP
+\-
+.I expression
+.B /
+.I expression
+.RS
+Returns division of both
+.IR expression s.
+.RE
+.PP
+\-
+.I expression
+.B %
+.I expression
+.RS
+Returns remainder of the first
+.I expression
+divided by the second.
+.RE
+.PP
+\-
+.I expression
+.B **
 .I expression
 .RS
 Returns the first
 .I expression
-if the second
+to the power of the second.
+.RE
+.PP
+\-
 .I expression
-is non zero,
-otherwise returns the third
+.B |
+.I expression
+.RS
+Returns bitwise or of both
+.IR expression s.
+.RE
+.PP
+\-
+.I expression
+.B ^
+.I expression
+.RS
+Returns bitwise exclusive-or of both
+.IR expression s.
+.RE
+.PP
+\-
+.I expression
+.B &
+.I expression
+.RS
+Returns bitwise and of both
+.IR expression s.
+.RE
+.PP
+\-
+.I expression
+.B <<
+.I expression
+.RS
+Returns left bitwise shift of the first
+.I expression
+by the second.
+.RE
+.PP
+\-
+.I expression
+.B >>
+.I expression
+.RS
+Returns right bitwise shift of the first
+.I expression
+by the second.
+.RE
+.SS Logical comparison operators
+.PP
+\-
+.B not
+.I expression
+.RS
+Returns the logical not of
 .IR expression .
-.PP
-Note that
-.BR if-else 's
-can only be nested if the
-nested
-.B if-else
-is
-parenthesized.
-.RE
-.PP
-\-
-.I expression
-.B and
-.I expression
-.RS
-Returns 1 if both
-.IR expression s
-are true,
-otherwise returns 0.
-.RE
-.PP
-\-
-.I expression
-.B or
-.I expression
-.RS
-Returns 1 if either or both
-.IR expression s
-are true,
-otherwise returns 0.
 .RE
 .PP
 \-
@@ -218,353 +268,61 @@ otherwise returns 0.
 .PP
 \-
 .I expression
-.B +
+.B or
 .I expression
 .RS
-Returns sum of both
-.IR expression s.
+Returns 1 if either or both
+.IR expression s
+are true,
+otherwise returns 0.
 .RE
 .PP
 \-
 .I expression
-.B \-
+.B and
 .I expression
 .RS
-Returns difference of both
-.IR expression s.
+Returns 1 if both
+.IR expression s
+are true,
+otherwise returns 0.
 .RE
 .PP
 \-
 .I expression
-.B *
+.B if
 .I expression
-.RS
-Returns product of both
-.IR expression s.
-.RE
-.PP
-\-
-.I expression
-.B /
-.I expression
-.RS
-Returns division of both
-.IR expression s.
-.RE
-.PP
-\-
-.I expression
-.B %
-.I expression
-.RS
-Returns remainder of the first
-.I expression
-divided by the second.
-.RE
-.PP
-\-
-.I expression
-.B **
+.B else
 .I expression
 .RS
 Returns the first
 .I expression
-to the power of the second.
-.RE
-.PP
-\-
-.B \-
+if the second
 .I expression
-.RS
-Returns unary minus of
+is non zero,
+otherwise returns the third
 .IR expression .
+.PP
+Note that
+.BR if-else 's
+can only be nested if the
+nested
+.B if-else
+is
+parenthesized.
 .RE
+.SS Builtin functions
 .PP
 \-
-.B not
-.I expression
-.RS
-Returns 0 if
-.I expression
-is 1,
-and 1 if
-.I expression
-is 0.
-.RE
-.PP
-\-
-.B root (
-.I expression
-.B )
-.RS
-Returns the square root of
-.IR expression .
-.RE
-.SS Scientific
-.PP
-\-
-.B pi
-Returns the constant
-.IR pi .
-.PP
-\-
-.B e
-Returns the constant
-.IR e .
-.PP
-\-
-.I expression
-.B !
-.RS
-Returns the factorial of
-.IR expression .
-(Note that '!' may need do be escaped with '\\')
-.RE
-.PP
-\-
-.B sin (
-.I expression
-.B )
-.RS
-Returns the sine of
-.IR expression .
-.RE
-.PP
-\-
-.B cos (
-.I expression
-.B )
-.RS
-Returns the cosine of
-.IR expression .
-.RE
-.PP
-\-
-.B tan (
-.I expression
-.B )
-.RS
-Returns the tangent of
-.IR expression .
-.RE
-.PP
-\-
-.B asin (
-.I expression
-.B )
-.RS
-Returns the arc sine of
-.IR expression .
-.RE
-.PP
-\-
-.B acos (
-.I expression
-.B )
-.RS
-Returns the arc cosine of
-.IR expression .
-.RE
-.PP
-\-
-.B atan (
-.I expression
-.B )
-.RS
-Returns the arc tangent of
-.IR expression .
-.RE
-.PP
-\-
-.B abs (
-.I expression
-.B )
-.RS
-Returns the absolute value of
-.IR expression .
-.RE
-.PP
-\-
-.B root
-.I n
+.B sqrt
 .B (
 .I expression
 .B )
 .RS
 Returns the
-.IR n th
+.IR square
 root of
-.IR expression ,
-.I n
-being a real number including one
-of the predefined constants
-.B pi
-or
-.BR e.
-.RE
-.PP
-\-
-.B root (
-.I expression
-.B ) (
-.I expression
-.B )
-.RS
-Returns the
-.IR n th
-root of the second
-.IR expression ,
-.I n
-being a real number or predefined constant
-resulting from the first
-.IR expression .
-.RE
-.PP
-\-
-.B ln (
-.I expression
-.B )
-.RS
-Returns log base
-.I e
-of
-.IR expression .
-.RE
-.PP
-\-
-.B log (
-.I expression
-.B )
-.RS
-Returns log base 10 of
-.IR expression .
-.RE
-.PP
-\-
-.B log2 (
-.I expression
-.B )
-.RS
-Returns log base 2 of
-.IR expression .
-.RE
-.PP
-\-
-.B log
-.I n
-.B (
-.I expression
-.B )
-.RS
-Returns log base
-.I n
-of
-.IR expression ,
-.I n
-being a real number of predefined constant.
-.RE
-.PP
-\-
-.B log (
-.I expression
-.B ) (
-.I expression
-.B )
-.RS
-Returns log base
-.I n
-of the second
-.IR expression ,
-.I n
-being a real number of predefined constant
-resulting from the first expression
-.RE
-.SS Programmers
-.PP
-\-
-.I expression
-.B |
-.I expression
-.RS
-Returns bitwise or of both
-.IR expression s.
-.RE
-.PP
-\-
-.I expression
-.B ^
-.I expression
-.RS
-Returns bitwise exclusive-or of both
-.IR expression s.
-.RE
-.PP
-\-
-.I expression
-.B &
-.I expression
-.RS
-Returns bitwise and of both
-.IR expression s.
-.RE
-.PP
-\-
-.I expression
-.B <<
-.I expression
-.RS
-Returns left bitwise shift of the first
-.I expression
-by the second.
-.RE
-.PP
-\-
-.I expression
-.B >>
-.I expression
-.RS
-Returns right bitwise shift of the first
-.I expression
-by the second.
-.RE
-.PP
-\-
-.B ~
-.I expression
-.RS
-Returns the bitwise not of
-.IR expression .
-.RE
-.PP
-\-
-.B root
-.I n
-.B (
-.I expression
-.B )
-.RS
-Returns the
-.IR n th
-root of
-.IR expression,
-.I n
-being a natural number.
-.RE
-.PP
-\-
-.B root (
-.I expression
-.B ) (
-.I expression
-.B )
-.RS
-Returns the
-.IR n th
-root of
-.IR expression,
-.I n
-being a natural number resulting from
-.IR expression .
+.IR expression.
 .RE
 .PP
 \-
