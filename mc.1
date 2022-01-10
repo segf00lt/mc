@@ -68,8 +68,9 @@ octal with leading 0[oO] and hexadecimal with leading 0[xX].
 .SH EXPRESSION SYNTAX
 The syntax used by
 .B mc
-is listed below in order of precedence,
-highest to lowest.
+is listed,
+under each section below,
+in order of highest to lowest precedence.
 .SS Arithmetic and Bitwise operators
 .PP
 \-
@@ -190,7 +191,7 @@ Returns right bitwise shift of the first
 .I expression
 by the second.
 .RE
-.SS Logical comparison operators
+.SS Logical operators
 .PP
 \-
 .B not
@@ -286,30 +287,6 @@ Returns 1 if both
 .IR expression s
 are true,
 otherwise returns 0.
-.RE
-.PP
-\-
-.I expression
-.B if
-.I expression
-.B else
-.I expression
-.RS
-Returns the first
-.I expression
-if the second
-.I expression
-is non zero,
-otherwise returns the third
-.IR expression .
-.PP
-Note that
-.BR if-else 's
-can only be nested if the
-nested
-.B if-else
-is
-parenthesized.
 .RE
 .SS Builtin functions
 .PP

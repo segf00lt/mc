@@ -30,13 +30,11 @@ long chaincompare(void);
 %token UNDEFINED
 %token END
 %token <n> NATURAL
-%token IF ELSE
 %token LAND LOR
 %token LT GT LTEQ GTEQ EQ NEQ
 %token AND OR NOT XOR LSHIFT RSHIFT
 %token ADD SUB MUL DIV MOD POW LNOT OPAREN CPAREN
 %token SQRT ABS LOG LOG10
-%left IF ELSE
 %left LOR
 %left LAND
 %left OR
@@ -51,14 +49,11 @@ long chaincompare(void);
 %left POW
 %left SQRT ABS LOG LOG10
 %left OPAREN CPAREN
-%type <n> n_conditional n_logic n_compare n_expr n_primary n_builtin n_paren
+%type <n> n_logic n_compare n_expr n_primary n_builtin n_paren
 
 %%
-start: n_conditional END { outreg = $1; acc += $1; }
+start: n_logic END { outreg = $1; acc += $1; }
      ;
-n_conditional: n_logic { $$ = $1; }
-	     | n_logic IF n_logic ELSE n_logic { $$ = $3 ? $1 : $5; }
-	     ;
 n_logic: n_compare { $$ = chaincompare(); }
        | n_logic LAND n_logic { $$ = $1 && $3; logicout = $1 && $3; }
        | n_logic LOR n_logic { $$ = $1 || $3; logicout = $1 || $3; }
@@ -95,7 +90,7 @@ n_builtin: SQRT n_paren { $$ = (int)sqrt((double)$2); }
          | LOG n_paren { $$ = (int)log2((double)$2); }
          | LOG10 n_paren { $$ = (int)log10((double)$2); }
 	 ;
-n_paren: OPAREN n_conditional CPAREN { $$ = $2; }
+n_paren: OPAREN n_logic CPAREN { $$ = $2; }
        ;
 %%
 

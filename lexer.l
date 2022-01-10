@@ -28,8 +28,6 @@ extern struct Flags flags;
 	yylval.n = strtoul(yytext, NULL, 16);
 	return NATURAL;
 }
-if { return IF; }
-else { return ELSE; }
 not { return LNOT; }
 and { return LAND; }
 or { return LOR; }
